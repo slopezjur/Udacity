@@ -2,24 +2,23 @@ package com.udacity.asteroidradar.api
 
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
-import com.udacity.asteroidradar.state.FailException
-import com.udacity.asteroidradar.state.Resource
+import org.json.JSONObject
 
-class RemoteDataSource(private val nasaApiService: NasaApiServiceImpl) {
+class RemoteDataSource {
 
-    suspend fun getAsteroidsByRange(startDate: String, endDate: String): Resource<List<Asteroid>> {
-        return nasaApiService.retrofitService.getAsteroidsByDateRange(
+    suspend fun getAsteroidsByRange(startDate: String, endDate: String): List<Asteroid> {
+        val response = NasaApiServiceImpl.retrofitService.getAsteroidsByDateRangeAsync(
             startDate = startDate,
             endDate = endDate,
             Constants.API_KEY
         ).run {
             if (isSuccessful) {
-                body()?.let { body -> Resource.Success(parseAsteroidsJsonResult(body)) } ?: Resource.Failure(
-                    FailException.EmptyBody
-                )
+                body()?.let { body -> parseAsteroidsJsonResult(JSONObject(body)) } ?: emptyList()
             } else {
-                Resource.Failure(FailException.BadRequest)
+                emptyList()
             }
         }
+
+        return response
     }
 }
