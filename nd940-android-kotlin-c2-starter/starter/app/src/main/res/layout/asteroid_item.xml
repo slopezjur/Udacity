@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="asteroid"
             type="com.udacity.asteroidradar.Asteroid" />
@@ -14,40 +16,43 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/dev_color">
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_item"
+        android:background="@color/app_background">
 
         <TextView
             android:id="@+id/asteroid_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/dev_color_2"
             android:text="@{asteroid.codename}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textColor="@color/default_text_color"
+            app:layout_constraintBottom_toTopOf="@+id/asteroid_date_tv"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="68347 (2001 KB67)" />
 
         <TextView
             android:id="@+id/asteroid_date_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/dev_color_2"
             android:text="@{asteroid.closeApproachDate}"
+            android:textColor="@color/text_grey"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="@+id/asteroid_name_tv"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="@+id/asteroid_name_tv"
+            app:layout_constraintTop_toBottomOf="@+id/asteroid_name_tv"
+            tools:text="2022-09-08" />
 
         <ImageView
             android:id="@+id/asteroid_potential_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/dev_color_2"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:contentDescription="@string/asteroid_potential_iv"
+            android:src="@drawable/ic_status_potentially_hazardous"
+            app:layout_constraintBottom_toBottomOf="@+id/asteroid_date_tv"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/asteroid_name_tv" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
