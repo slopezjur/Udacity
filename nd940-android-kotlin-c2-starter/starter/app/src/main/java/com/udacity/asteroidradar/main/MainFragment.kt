@@ -4,8 +4,9 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 
@@ -30,20 +31,31 @@ class MainFragment : Fragment() {
         setHasOptionsMenu(true)
 
         asteroidAdapter = AsteroidAdapter(
-            AsteroidClick { }
+            AsteroidClick {
+                this.findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
+            }
         )
 
-        binding.root.findViewById<RecyclerView>(R.id.asteroid_recycler).apply {
+        binding.asteroidRecycler.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = asteroidAdapter
         }
 
+        setupImageOfTheDay(binding)
+        setupAsteroids()
+
         return binding.root
     }
 
+    private fun setupImageOfTheDay(binding: FragmentMainBinding) {
+        viewModel.imageOfTheDay.observe(viewLifecycleOwner) { imageOfTheDay ->
+            imageOfTheDay?.let {
+                Picasso.with(context).load(it.url).into(binding.activityMainImageOfTheDay)
+            }
+        }
+    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private fun setupAsteroids() {
         viewModel.asteroids.observe(viewLifecycleOwner) { asteroids ->
             asteroids?.let {
                 asteroidAdapter?.asteroids = asteroids

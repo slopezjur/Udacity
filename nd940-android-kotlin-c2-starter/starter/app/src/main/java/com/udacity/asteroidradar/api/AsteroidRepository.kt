@@ -18,12 +18,19 @@
 package com.udacity.asteroidradar.api
 
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.ImageOfTheDay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class AsteroidRepository {
 
     private val remoteDataSource = RemoteDataSource()
+
+    suspend fun getImageOfTheDay(): ImageOfTheDay {
+        return withContext(Dispatchers.IO) {
+            remoteDataSource.getImageOfTheDay()
+        }
+    }
 
     suspend fun getAsteroids() : List<Asteroid> {
         return withContext(Dispatchers.IO) {
