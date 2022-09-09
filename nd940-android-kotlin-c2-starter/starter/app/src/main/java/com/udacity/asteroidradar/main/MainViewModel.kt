@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.ImageOfTheDay
 import com.udacity.asteroidradar.api.AsteroidRepository
+import com.udacity.asteroidradar.api.RemoteDataSource
+import com.udacity.asteroidradar.database.AsteroidRoom.Companion.getInstance
 import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -20,7 +22,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val imageOfTheDay: LiveData<ImageOfTheDay>
         get() = _imageOfTheDay
 
-    private val asteroidRepository = AsteroidRepository()
+    // TODO : Hello, Hilt
+    private val remoteDataSource = RemoteDataSource()
+    private val database = getInstance(application)
+    private val asteroidRepository = AsteroidRepository(remoteDataSource, database)
 
     init {
         viewModelScope.launch {
@@ -28,7 +33,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         viewModelScope.launch {
-            _asteroids.value = asteroidRepository.getAsteroids()
+            asteroidRepository.getAsteroids()
         }
+
+        _asteroids.value = asteroidRepository.asteroids.value
     }
 }
