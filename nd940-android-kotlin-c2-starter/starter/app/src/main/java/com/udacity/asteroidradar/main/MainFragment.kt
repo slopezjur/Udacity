@@ -68,7 +68,7 @@ class MainFragment : Fragment(), MenuProvider {
     private fun setupAsteroids() {
         viewModel.asteroids.observe(viewLifecycleOwner) { asteroids ->
             asteroids?.let {
-                asteroidAdapter?.asteroids = asteroids
+                asteroidAdapter?.asteroids = it.asDomainModel()
             }
         }
     }

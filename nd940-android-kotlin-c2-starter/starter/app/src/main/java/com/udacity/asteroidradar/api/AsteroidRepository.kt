@@ -18,12 +18,11 @@
 package com.udacity.asteroidradar.api
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
-import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.ImageOfTheDay
 import com.udacity.asteroidradar.database.AsteroidRoom
+import com.udacity.asteroidradar.database.DatabaseAsteroid
 import com.udacity.asteroidradar.database.asDatabaseModel
-import com.udacity.asteroidradar.database.asDomainModel
+import com.udacity.asteroidradar.utils.DateFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -31,10 +30,6 @@ class AsteroidRepository(
     private val remoteDataSource: RemoteDataSource,
     private val database: AsteroidRoom
 ) {
-    val asteroids: LiveData<List<Asteroid>> =
-        Transformations.map(database.asteroidDao.getAsteroids()) {
-            it.asDomainModel()
-        }
 
     suspend fun getImageOfTheDay(): ImageOfTheDay {
         return withContext(Dispatchers.IO) {
@@ -42,21 +37,16 @@ class AsteroidRepository(
         }
     }
 
-    suspend fun getAsteroids() {
-        return withContext(Dispatchers.IO) {
-            val asteroids = remoteDataSource.getAsteroidsByRange("", "")
-            database.asteroidDao.insertAll(asteroids.asDatabaseModel())
+    fun getAsteroids(): LiveData<List<DatabaseAsteroid>> {
+        return database.asteroidDao.getAsteroids()
+    }
 
-            val testA = database.asteroidDao.getAsteroids().value?.asDomainModel()
-
-            asteroids.asDatabaseModel().forEach {
-                database.asteroidDao.insert(it)
-            }
-
-            val testB = database.asteroidDao.getAsteroids().value?.asDomainModel()
-
-            val sizeA = testA?.size
-            val sizeB = testB?.size
+    suspend fun refreshAsteroids() {
+        withContext(Dispatchers.IO) {
+            val asteroids = remoteDataSource.getAsteroidsByRange(
+                DateFormatter.getCurrentDateFormatted(), ""
+            ).asDatabaseModel()
+            database.asteroidDao.insertAll(asteroids)
         }
     }
 }

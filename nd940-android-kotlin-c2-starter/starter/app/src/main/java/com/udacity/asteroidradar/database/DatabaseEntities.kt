@@ -3,6 +3,7 @@ package com.udacity.asteroidradar.database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.utils.DateFormatter
 
 @Entity(tableName = "asteroid_table")
 data class DatabaseAsteroid constructor(
@@ -21,7 +22,7 @@ fun List<DatabaseAsteroid>.asDomainModel(): List<Asteroid> {
     return map {
         Asteroid(
             id = it.id,
-            codename = "${it.codename} - it works!",
+            codename = "${it.codename} - ${DateFormatter.getCurrentExtendedDateFormatted()}",
             closeApproachDate = it.closeApproachDate,
             absoluteMagnitude = it.absoluteMagnitude,
             estimatedDiameter = it.estimatedDiameter,
