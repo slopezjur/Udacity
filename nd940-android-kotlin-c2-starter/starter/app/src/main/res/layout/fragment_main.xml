@@ -28,8 +28,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
-                android:contentDescription="@{viewModel.imageOfTheDay.title}"
                 android:scaleType="centerCrop"
+                app:pictureOfTheDayDescription="@{viewModel.imageOfTheDay.title}"
                 app:srcCompat="@drawable/placeholder_picture_of_day" />
 
             <TextView
@@ -39,12 +39,18 @@
                 android:layout_gravity="bottom"
                 android:background="#55010613"
                 android:padding="16dp"
-                android:text="@{viewModel.imageOfTheDay.title}"
+                android:text="@string/this_is_nasa_s_picture_of_day_showing_nothing_yet"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                tools:text="@string/image_of_the_day" />
+                app:pictureOfTheDayTitle="@{viewModel.imageOfTheDay.title}" />
 
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progressIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                app:nasaApiStatus="@{viewModel.nasaApiStatus}" />
         </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView
