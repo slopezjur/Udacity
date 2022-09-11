@@ -19,10 +19,13 @@ class AsteroidRadarRepository(
     }
 
     suspend fun refreshImageOfTheDay() {
-        return withContext(Dispatchers.IO) {
-            database.imageOfTheDayDao.insert(
-                remoteDataSource.getImageOfTheDay().asDatabaseModel()
-            )
+        withContext(Dispatchers.IO) {
+            val imageOfTheDay = remoteDataSource.getImageOfTheDay()
+            if (imageOfTheDay.mediaType == "image") {
+                database.imageOfTheDayDao.insert(
+                    imageOfTheDay.asDatabaseModel()
+                )
+            }
         }
     }
 

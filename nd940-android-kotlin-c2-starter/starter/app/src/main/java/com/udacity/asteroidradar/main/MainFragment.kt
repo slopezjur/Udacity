@@ -63,7 +63,13 @@ class MainFragment : Fragment(), MenuProvider {
                 val imageOfTheDay = it.asDomainModel()
                 Picasso.with(context)
                     .load(imageOfTheDay.url)
+                    .placeholder(R.drawable.placeholder_picture_of_day)
+                    .error(R.drawable.ic_connection_error)
                     .into(binding.activityMainImageOfTheDay)
+                binding.activityMainImageOfTheDay.contentDescription = context?.getString(
+                    R.string.nasa_picture_of_day_content_description_format,
+                    imageOfTheDay.title
+                )
             }
         }
     }
