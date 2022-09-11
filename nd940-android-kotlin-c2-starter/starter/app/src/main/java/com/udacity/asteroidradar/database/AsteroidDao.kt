@@ -10,11 +10,11 @@ import androidx.room.Query
 interface AsteroidDao {
 
     @Query("select * from asteroid_table ORDER BY closeApproachDate ASC")
-    fun getAsteroids(): LiveData<List<DatabaseAsteroid>>
-
-    @Query("select COUNT(*) from asteroid_table")
-    fun getAsteroidsCount(): Int
+    fun getAsteroids(): LiveData<List<AsteroidDatabase>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(asteroids: List<DatabaseAsteroid>)
+    suspend fun insertAll(asteroids: List<AsteroidDatabase>)
+
+    @Query("DELETE FROM asteroid_table WHERE closeApproachDate < :range")
+    suspend fun deteleByRange(range: String)
 }

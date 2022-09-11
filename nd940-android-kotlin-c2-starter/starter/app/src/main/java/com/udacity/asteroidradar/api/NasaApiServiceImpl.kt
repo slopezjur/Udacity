@@ -14,7 +14,9 @@ object NasaApiServiceImpl {
         .baseUrl(BASE_URL)
         .build()
 
-    val retrofitService: NasaApiService by lazy { retrofit.create(NasaApiService::class.java) }
+    val retrofitService: NasaApiService by lazy {
+        retrofit.create(NasaApiService::class.java)
+    }
 
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
@@ -25,5 +27,7 @@ object NasaApiServiceImpl {
         .baseUrl(BASE_URL)
         .build()
 
-    val retrofitMoshiService: NasaApiService by lazy { retrofitMoshi.create(NasaApiService::class.java) }
+    val retrofitMoshiService: NasaApiService by lazy {
+        retrofitMoshi.create(NasaApiService::class.java)
+    }
 }

@@ -6,7 +6,7 @@ import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.utils.DateFormatter
 
 @Entity(tableName = "asteroid_table")
-data class DatabaseAsteroid constructor(
+data class AsteroidDatabase constructor(
     @PrimaryKey
     val id: Long,
     val codename: String,
@@ -15,27 +15,13 @@ data class DatabaseAsteroid constructor(
     val estimatedDiameter: Double,
     val relativeVelocity: Double,
     val distanceFromEarth: Double,
-    val isPotentiallyHazardous: Boolean
+    val isPotentiallyHazardous: Boolean,
+    val lastUpdate: String
 )
 
-fun List<DatabaseAsteroid>.asDomainModel(): List<Asteroid> {
+fun List<AsteroidDatabase>.asDomainModel(): List<Asteroid> {
     return map {
         Asteroid(
-            id = it.id,
-            codename = "${it.codename} - ${DateFormatter.getCurrentExtendedDateFormatted()}",
-            closeApproachDate = it.closeApproachDate,
-            absoluteMagnitude = it.absoluteMagnitude,
-            estimatedDiameter = it.estimatedDiameter,
-            relativeVelocity = it.relativeVelocity,
-            distanceFromEarth = it.distanceFromEarth,
-            isPotentiallyHazardous = it.isPotentiallyHazardous
-        )
-    }
-}
-
-fun List<Asteroid>.asDatabaseModel(): List<DatabaseAsteroid> {
-    return map {
-        DatabaseAsteroid(
             id = it.id,
             codename = it.codename,
             closeApproachDate = it.closeApproachDate,
@@ -43,7 +29,24 @@ fun List<Asteroid>.asDatabaseModel(): List<DatabaseAsteroid> {
             estimatedDiameter = it.estimatedDiameter,
             relativeVelocity = it.relativeVelocity,
             distanceFromEarth = it.distanceFromEarth,
-            isPotentiallyHazardous = it.isPotentiallyHazardous
+            isPotentiallyHazardous = it.isPotentiallyHazardous,
+            lastUpdate = it.lastUpdate
+        )
+    }
+}
+
+fun List<Asteroid>.asDatabaseModel(): List<AsteroidDatabase> {
+    return map {
+        AsteroidDatabase(
+            id = it.id,
+            codename = it.codename,
+            closeApproachDate = it.closeApproachDate,
+            absoluteMagnitude = it.absoluteMagnitude,
+            estimatedDiameter = it.estimatedDiameter,
+            relativeVelocity = it.relativeVelocity,
+            distanceFromEarth = it.distanceFromEarth,
+            isPotentiallyHazardous = it.isPotentiallyHazardous,
+            lastUpdate = DateFormatter.getCurrentExtendedDateFormatted()
         )
     }
 }

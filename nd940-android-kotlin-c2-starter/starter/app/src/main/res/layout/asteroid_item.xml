@@ -38,19 +38,32 @@
             android:layout_height="wrap_content"
             android:text="@{asteroid.closeApproachDate}"
             android:textColor="@color/text_grey"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/asteroid_last_update_tv"
             app:layout_constraintEnd_toEndOf="@+id/asteroid_name_tv"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="@+id/asteroid_name_tv"
             app:layout_constraintTop_toBottomOf="@+id/asteroid_name_tv"
             tools:text="2022-09-08" />
 
+        <TextView
+            android:id="@+id/asteroid_last_update_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{asteroid.lastUpdate}"
+            android:textColor="@color/text_grey"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/asteroid_name_tv"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="@+id/asteroid_name_tv"
+            app:layout_constraintTop_toBottomOf="@+id/asteroid_date_tv"
+            tools:text="2022-09-08 19:00:05" />
+
         <ImageView
             android:id="@+id/asteroid_potential_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/asteroid_potential_iv"
-            app:layout_constraintBottom_toBottomOf="@+id/asteroid_date_tv"
+            app:layout_constraintBottom_toBottomOf="@+id/asteroid_last_update_tv"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/asteroid_name_tv"
             app:statusIcon="@{asteroid.potentiallyHazardous}"

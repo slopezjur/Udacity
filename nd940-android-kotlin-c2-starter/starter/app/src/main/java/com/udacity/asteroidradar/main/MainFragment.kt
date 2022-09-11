@@ -58,16 +58,19 @@ class MainFragment : Fragment(), MenuProvider {
     }
 
     private fun setupImageOfTheDay(binding: FragmentMainBinding) {
-        viewModel.imageOfTheDay.observe(viewLifecycleOwner) { imageOfTheDay ->
-            imageOfTheDay?.let {
-                Picasso.with(context).load(it.url).into(binding.activityMainImageOfTheDay)
+        viewModel.imageOfTheDay.observe(viewLifecycleOwner) { imageOfTheDayDatabase ->
+            imageOfTheDayDatabase?.let {
+                val imageOfTheDay = it.asDomainModel()
+                Picasso.with(context)
+                    .load(imageOfTheDay.url)
+                    .into(binding.activityMainImageOfTheDay)
             }
         }
     }
 
     private fun setupAsteroids() {
-        viewModel.asteroids.observe(viewLifecycleOwner) { asteroids ->
-            asteroids?.let {
+        viewModel.asteroids.observe(viewLifecycleOwner) { asteroidDatabase ->
+            asteroidDatabase?.let {
                 asteroidAdapter?.asteroids = it.asDomainModel()
             }
         }
