@@ -14,6 +14,11 @@ class AsteroidRadarRepository(
     private val database: AsteroidRadarRoom
 ) {
 
+    companion object {
+        private const val EXTRA_DAYS = 7
+        private const val IMAGE_MEDIA_TYPE = "image"
+    }
+
     fun getImageOfTheDay(): LiveData<ImageOfTheDayDatabase> {
         return database.imageOfTheDayDao.getImageOfTheDay()
     }
@@ -21,7 +26,7 @@ class AsteroidRadarRepository(
     suspend fun refreshImageOfTheDay() {
         withContext(Dispatchers.IO) {
             val imageOfTheDay = remoteDataSource.getImageOfTheDay()
-            if (imageOfTheDay.mediaType == "image") {
+            if (imageOfTheDay.mediaType == IMAGE_MEDIA_TYPE) {
                 database.imageOfTheDayDao.insert(
                     imageOfTheDay.asDatabaseModel()
                 )
@@ -38,7 +43,7 @@ class AsteroidRadarRepository(
             database.asteroidDao.insertAll(
                 remoteDataSource.getAsteroidsByRange(
                     DateFormatter.getCurrentDateFormatted(),
-                    DateFormatter.getCurrentDatePlusExtraDaysFormatted(7)
+                    DateFormatter.getCurrentDatePlusExtraDaysFormatted(EXTRA_DAYS)
                 ).asDatabaseModel()
             )
         }
@@ -53,7 +58,7 @@ class AsteroidRadarRepository(
     fun getWeekAsteroidsFromLocal(): LiveData<List<AsteroidDatabase>> {
         return database.asteroidDao.getWeekAsteroids(
             DateFormatter.getCurrentDatePlusExtraDaysFormatted(
-                7
+                EXTRA_DAYS
             )
         )
     }

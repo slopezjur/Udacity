@@ -2,9 +2,9 @@ package com.udacity.asteroidradar
 
 import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.udacity.asteroidradar.api.NasaApiStatus
 
 @BindingAdapter("statusIcon")
@@ -48,19 +48,19 @@ fun bindTextViewToDisplayVelocity(textView: TextView, number: Double) {
 }
 
 @BindingAdapter("nasaApiStatus")
-fun bindStatus(circularProgressIndicator: CircularProgressIndicator, status: NasaApiStatus?) {
+fun bindStatus(progressBar: ProgressBar, status: NasaApiStatus?) {
     when (status) {
         NasaApiStatus.LOADING -> {
-            circularProgressIndicator.visibility = View.VISIBLE
+            progressBar.visibility = View.VISIBLE
         }
         NasaApiStatus.ERROR -> {
-            circularProgressIndicator.visibility = View.GONE
+            progressBar.visibility = View.GONE
         }
         NasaApiStatus.DONE -> {
-            circularProgressIndicator.visibility = View.GONE
+            progressBar.visibility = View.GONE
         }
         else -> {
-            circularProgressIndicator.visibility = View.GONE
+            progressBar.visibility = View.GONE
         }
     }
 }

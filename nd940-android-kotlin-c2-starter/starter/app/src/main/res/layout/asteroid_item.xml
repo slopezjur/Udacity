@@ -51,6 +51,7 @@
             android:layout_height="wrap_content"
             android:text="@{asteroid.lastUpdate}"
             android:textColor="@color/text_grey"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/asteroid_name_tv"
             app:layout_constraintHorizontal_bias="0"
