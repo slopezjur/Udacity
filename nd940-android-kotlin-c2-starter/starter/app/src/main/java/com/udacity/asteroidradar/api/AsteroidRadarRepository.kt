@@ -37,7 +37,8 @@ class AsteroidRadarRepository(
         withContext(Dispatchers.IO) {
             database.asteroidDao.insertAll(
                 remoteDataSource.getAsteroidsByRange(
-                    DateFormatter.getCurrentDateFormatted(), ""
+                    DateFormatter.getCurrentDateFormatted(),
+                    DateFormatter.getCurrentDatePlusExtraDaysFormatted(7)
                 ).asDatabaseModel()
             )
         }
@@ -47,5 +48,19 @@ class AsteroidRadarRepository(
         withContext(Dispatchers.IO) {
             database.asteroidDao.deteleByRange(range)
         }
+    }
+
+    fun getWeekAsteroidsFromLocal(): LiveData<List<AsteroidDatabase>> {
+        return database.asteroidDao.getWeekAsteroids(
+            DateFormatter.getCurrentDatePlusExtraDaysFormatted(
+                7
+            )
+        )
+    }
+
+    fun getTodayAsteroidsFromLocal(): LiveData<List<AsteroidDatabase>> {
+        return database.asteroidDao.getWeekAsteroids(
+            DateFormatter.getCurrentDateFormatted()
+        )
     }
 }

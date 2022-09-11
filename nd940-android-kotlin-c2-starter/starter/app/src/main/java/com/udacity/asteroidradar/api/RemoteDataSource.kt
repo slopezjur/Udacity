@@ -7,15 +7,17 @@ import org.json.JSONObject
 
 class RemoteDataSource {
 
+    private val emptyImageOfTheDay = ImageOfTheDay("", "", "")
+
     suspend fun getImageOfTheDay(): ImageOfTheDay {
         return NasaApiServiceImpl.retrofitMoshiService.getImageOfTheDay(
             Constants.API_KEY
         ).run {
             if (isSuccessful) {
                 // TODO : manage result
-                body() ?: ImageOfTheDay("", "", "")
+                body() ?: emptyImageOfTheDay
             } else {
-                ImageOfTheDay("", "", "")
+                emptyImageOfTheDay
             }
         }
     }

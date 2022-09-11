@@ -23,7 +23,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val asteroidRadarRepository = AsteroidRadarRepository(remoteDataSource, database)
 
     val imageOfTheDay = asteroidRadarRepository.getImageOfTheDay()
-    val asteroids = asteroidRadarRepository.getAsteroids()
+    var asteroids = asteroidRadarRepository.getAsteroids()
 
     init {
         viewModelScope.launch {
@@ -36,5 +36,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _nasaApiStatus.value = NasaApiStatus.ERROR
             }
         }
+    }
+
+    fun getAsteroidFromLocal() {
+        asteroids = asteroidRadarRepository.getAsteroids()
+    }
+
+    fun getWeekAsteroidsFromLocal() {
+        asteroids = asteroidRadarRepository.getWeekAsteroidsFromLocal()
+    }
+
+    fun getTodayAsteroidsFromLocal() {
+        asteroids = asteroidRadarRepository.getTodayAsteroidsFromLocal()
     }
 }

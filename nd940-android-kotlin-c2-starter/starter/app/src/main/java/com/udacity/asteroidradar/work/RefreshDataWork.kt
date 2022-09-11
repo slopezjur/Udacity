@@ -27,9 +27,7 @@ class RefreshDataWorker(
         return try {
             asteroidRadarRepository.refreshImageOfTheDay()
             asteroidRadarRepository.refreshAsteroids()
-            asteroidRadarRepository.deleteByRange(
-                DateFormatter.getCurrentDatePlusExtraDaysFormatted(1)
-            )
+            asteroidRadarRepository.deleteByRange(DateFormatter.getCurrentDateFormatted())
             Result.success()
         } catch (e: HttpException) {
             Result.retry()
