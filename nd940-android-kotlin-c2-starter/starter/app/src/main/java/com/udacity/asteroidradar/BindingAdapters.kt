@@ -77,8 +77,10 @@ fun bindDetailsStatusImage(imageView: ImageView, contentDescription: String?) {
 @BindingAdapter("pictureOfTheDayTitle")
 fun bindDetailsStatusImage(textView: TextView, title: String?) {
     val context = textView.context
-    textView.text = context.getString(
-        R.string.nasa_picture_of_day_content_description_format,
-        title
-    )
+    title?.let {
+        textView.text = context.getString(
+            R.string.nasa_picture_of_day_content_description_format,
+            it
+        )
+    }
 }
