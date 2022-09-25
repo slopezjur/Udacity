@@ -9,14 +9,98 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <com.udacity.LoadingButton
+    <ImageView
+        android:id="@+id/mainHeaderIv"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/header_background"
+        android:contentDescription="@string/main_header"
+        android:src="@drawable/ic_cloud_download_48dp"
+        app:layout_constraintBottom_toTopOf="@+id/downladerRv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.33"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RadioButton
+        android:id="@+id/glideDownloadRb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        app:layout_constraintBottom_toBottomOf="@+id/glideDownloadTv"
+        app:layout_constraintEnd_toStartOf="@+id/glideDownloadTv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/glideDownloadTv" />
+
+    <TextView
+        android:id="@+id/glideDownloadTv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/glide_download_text"
+        app:layout_constraintBottom_toTopOf="@+id/udacitiyDownloadTv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/glideDownloadRb"
+        app:layout_constraintTop_toBottomOf="@+id/mainHeaderIv"
+        tools:text="This is a super test baskldf l asldkfjawef lawejfawlef laejwfl akwjefl ajwefla jewf!" />
+
+    <RadioButton
+        android:id="@+id/udacityDownloadRb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        app:layout_constraintBottom_toBottomOf="@+id/udacitiyDownloadTv"
+        app:layout_constraintEnd_toStartOf="@+id/udacitiyDownloadTv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/udacitiyDownloadTv" />
+
+    <TextView
+        android:id="@+id/udacitiyDownloadTv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/glide_download_text"
+        app:layout_constraintBottom_toTopOf="@+id/retrofitDownloadTv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/udacityDownloadRb"
+        app:layout_constraintTop_toBottomOf="@+id/glideDownloadRb"
+        tools:text="This is a super test baskldf l asldkfjawef lawejfawlef laejwfl akwjefl ajwefla jewf!" />
+
+    <RadioButton
+        android:id="@+id/retrofitDownloadRb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        app:layout_constraintBottom_toBottomOf="@+id/retrofitDownloadTv"
+        app:layout_constraintEnd_toStartOf="@+id/retrofitDownloadTv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/retrofitDownloadTv" />
+
+    <TextView
+        android:id="@+id/retrofitDownloadTv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/retrofit_download_text"
+        app:layout_constraintBottom_toTopOf="@+id/custom_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/retrofitDownloadRb"
+        app:layout_constraintTop_toBottomOf="@+id/udacityDownloadRb"
+        tools:text="This is a super test baskldf l asldkfjawef lawejfawlef laejwfl akwjefl ajwefla jewf!" />
+
+    <Button
         android:id="@+id/custom_button"
         android:layout_width="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="60dp"
         android:layout_margin="20dp"
+        android:background="@color/colorPrimary"
+        android:text="@string/download"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
