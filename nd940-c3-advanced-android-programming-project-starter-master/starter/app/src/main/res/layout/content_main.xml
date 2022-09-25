@@ -21,77 +21,62 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <RadioButton
-        android:id="@+id/glideDownloadRb"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_margin"
-        android:layout_marginBottom="@dimen/margin_radio_button"
-        app:layout_constraintBottom_toTopOf="@+id/udacityDownloadRb"
-        app:layout_constraintEnd_toStartOf="@+id/glideDownloadTv"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mainHeaderIv"
-        app:layout_constraintVertical_chainStyle="packed" />
-
-    <TextView
-        android:id="@+id/glideDownloadTv"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/default_margin"
-        android:gravity="center_vertical"
-        android:text="@string/glide_download_text"
-        android:textSize="@dimen/default_text_size"
-        app:layout_constraintBottom_toBottomOf="@+id/glideDownloadRb"
+    <RadioGroup
+        android:id="@+id/downloadRg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/custom_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/glideDownloadRb"
-        app:layout_constraintTop_toTopOf="@id/glideDownloadRb" />
-
-    <RadioButton
-        android:id="@+id/udacityDownloadRb"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_margin"
-        android:layout_marginBottom="@dimen/margin_radio_button"
-        app:layout_constraintBottom_toTopOf="@+id/retrofitDownloadRb"
-        app:layout_constraintEnd_toStartOf="@+id/udacitiyDownloadTv"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/glideDownloadRb" />
+        app:layout_constraintTop_toBottomOf="@+id/mainHeaderIv">
 
-    <TextView
-        android:id="@+id/udacitiyDownloadTv"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/default_margin"
-        android:gravity="center_vertical"
-        android:text="@string/glide_download_text"
-        android:textSize="@dimen/default_text_size"
-        app:layout_constraintBottom_toBottomOf="@+id/udacityDownloadRb"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/udacityDownloadRb"
-        app:layout_constraintTop_toTopOf="@id/udacityDownloadRb" />
+        <RadioButton
+            android:id="@+id/glideDownloadRb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/default_margin"
+            android:layout_marginEnd="@dimen/default_margin"
+            android:layout_marginBottom="@dimen/default_margin"
+            android:onClick="onRadioButtonClicked"
+            android:text="@string/glide_download_text"
+            android:textSize="@dimen/default_text_size"
+            app:layout_constraintBottom_toTopOf="@+id/udacityDownloadRb"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
-    <RadioButton
-        android:id="@+id/retrofitDownloadRb"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_margin"
-        app:layout_constraintBottom_toTopOf="@+id/custom_button"
-        app:layout_constraintEnd_toStartOf="@+id/retrofitDownloadTv"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/udacityDownloadRb" />
+        <RadioButton
+            android:id="@+id/udacityDownloadRb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/default_margin"
+            android:layout_marginEnd="@dimen/default_margin"
+            android:layout_marginBottom="@dimen/default_margin"
+            android:onClick="onRadioButtonClicked"
+            android:text="@string/udacity_download_text"
+            android:textSize="@dimen/default_text_size"
+            app:layout_constraintBottom_toTopOf="@+id/retrofitDownloadRb"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/glideDownloadRb" />
 
-    <TextView
-        android:id="@+id/retrofitDownloadTv"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/default_margin"
-        android:gravity="center_vertical"
-        android:text="@string/retrofit_download_text"
-        android:textSize="@dimen/default_text_size"
-        app:layout_constraintBottom_toBottomOf="@+id/retrofitDownloadRb"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/retrofitDownloadRb"
-        app:layout_constraintTop_toTopOf="@id/retrofitDownloadRb" />
+        <RadioButton
+            android:id="@+id/retrofitDownloadRb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/default_margin"
+            android:layout_marginEnd="@dimen/default_margin"
+            android:onClick="onRadioButtonClicked"
+            android:text="@string/retrofit_download_text"
+            android:textSize="@dimen/default_text_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/udacityDownloadRb" />
+    </RadioGroup>
 
     <Button
         android:id="@+id/custom_button"

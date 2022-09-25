@@ -9,6 +9,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
+import android.widget.RadioButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import kotlinx.android.synthetic.main.activity_main.*
@@ -18,6 +21,8 @@ import kotlinx.android.synthetic.main.content_main.*
 class MainActivity : AppCompatActivity() {
 
     private var downloadID: Long = 0
+
+    private var current_url: String = ""
 
     private lateinit var notificationManager: NotificationManager
     private lateinit var pendingIntent: PendingIntent
@@ -31,19 +36,48 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
         custom_button.setOnClickListener {
-            download()
+            if (current_url.isNotEmpty()) {
+                download()
+            } else {
+                Toast.makeText(
+                    it.context,
+                    it.context.getString(R.string.download_unselected_message),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
+
+    fun onRadioButtonClicked(view: View) {
+        if (view is RadioButton) {
+            when (view.getId()) {
+                R.id.glideDownloadRb ->
+                    if (view.isChecked) {
+                        current_url = GLIDE_URL
+                    }
+                R.id.udacityDownloadRb ->
+                    if (view.isChecked) {
+                        current_url = UDACITY_URL
+                    }
+                R.id.retrofitDownloadRb ->
+                    if (view.isChecked) {
+                        current_url = RETROFIT_URL
+                    }
+            }
+        }
+    }
+
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            val id2 = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
         }
     }
 
     private fun download() {
         val request =
-            DownloadManager.Request(Uri.parse(URL))
+            DownloadManager.Request(Uri.parse(UDACITY_URL))
                 .setTitle(getString(R.string.app_name))
                 .setDescription(getString(R.string.app_description))
                 .setRequiresCharging(false)
@@ -56,9 +90,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val URL =
+        private const val GLIDE_URL =
+            "https://github.com/bumptech/glide/archive/master.zip"
+        private const val UDACITY_URL =
             "https://github.com/udacity/nd940-c3-advanced-android-programming-project-starter/archive/master.zip"
+        private const val RETROFIT_URL =
+            "https://github.com/square/retrofit/archive/master.zip"
         private const val CHANNEL_ID = "channelId"
     }
-
 }
