@@ -17,15 +17,17 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.udacity.Constants.FILE_NAME
+import com.udacity.Constants.STATUS
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.content_main.*
 
 
 class MainActivity : AppCompatActivity() {
 
     private var downloadID: Long = 0
 
-    private var current_url: String = ""
+    private var currentUrl: String = ""
+    private var currentDonwload: String = ""
 
     private lateinit var notificationManager: NotificationManager
     private lateinit var pendingIntent: PendingIntent
@@ -38,8 +40,6 @@ class MainActivity : AppCompatActivity() {
 
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
-        setRadioButtonSelector()
-
         notificationManager = ContextCompat.getSystemService(
             baseContext,
             NotificationManager::class.java
@@ -48,17 +48,15 @@ class MainActivity : AppCompatActivity() {
         createChannel()
     }
 
-    private fun setRadioButtonSelector() {
-        custom_button.setOnClickListener {
-            if (current_url.isNotEmpty()) {
-                download()
-            } else {
-                Toast.makeText(
-                    it.context,
-                    it.context.getString(R.string.download_unselected_message),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+    fun onCustomBottomClicked(view: View) {
+        if (currentUrl.isNotEmpty()) {
+            download()
+        } else {
+            Toast.makeText(
+                view.context,
+                getString(R.string.download_unselected_message),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -67,15 +65,18 @@ class MainActivity : AppCompatActivity() {
             when (view.getId()) {
                 R.id.glideDownloadRb ->
                     if (view.isChecked) {
-                        current_url = GLIDE_URL
+                        currentUrl = GLIDE_URL
+                        currentDonwload = getString(R.string.glide_download_text)
                     }
                 R.id.udacityDownloadRb ->
                     if (view.isChecked) {
-                        current_url = UDACITY_URL
+                        currentUrl = UDACITY_URL
+                        currentDonwload = getString(R.string.udacity_download_text)
                     }
                 R.id.retrofitDownloadRb ->
                     if (view.isChecked) {
-                        current_url = RETROFIT_URL
+                        currentUrl = RETROFIT_URL
+                        currentDonwload = getString(R.string.retrofit_download_text)
                     }
             }
         }
@@ -84,15 +85,15 @@ class MainActivity : AppCompatActivity() {
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) ?: -1
 
-            context?.let { sendNotification() }
+            context?.let { sendNotification(id.toInt()) }
         }
     }
 
     private fun download() {
         val request =
-            DownloadManager.Request(Uri.parse(current_url))
+            DownloadManager.Request(Uri.parse(currentUrl))
                 .setTitle(getString(R.string.app_name))
                 .setDescription(getString(R.string.app_description))
                 .setRequiresCharging(false)
@@ -119,13 +120,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendNotification() {
-
+    private fun sendNotification(notificationId: Int) {
         val contentIntent = Intent(applicationContext, DetailActivity::class.java)
+        contentIntent.putExtra(FILE_NAME, currentDonwload)
+
+        if (notificationId == -1) {
+            contentIntent.putExtra(STATUS, "Fail")
+        } else {
+            contentIntent.putExtra(STATUS, "Success")
+        }
+
 
         pendingIntent = PendingIntent.getActivity(
             applicationContext,
-            NOTIFICATION_ID,
+            notificationId,
             contentIntent,
             PendingIntent.FLAG_IMMUTABLE
         )
@@ -145,7 +153,7 @@ class MainActivity : AppCompatActivity() {
             .setContentIntent(pendingIntent)
             .addAction(action)
 
-        notificationManager.notify(NOTIFICATION_ID, builder.build())
+        notificationManager.notify(notificationId, builder.build())
     }
 
     companion object {
@@ -156,6 +164,5 @@ class MainActivity : AppCompatActivity() {
         private const val RETROFIT_URL =
             "https://github.com/square/retrofit/archive/master.zip"
         private const val CHANNEL_ID = "channelId"
-        private const val NOTIFICATION_ID = 0
     }
 }

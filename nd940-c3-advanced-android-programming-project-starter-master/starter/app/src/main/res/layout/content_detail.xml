@@ -8,4 +8,64 @@
     tools:context=".DetailActivity"
     tools:showIn="@layout/activity_detail">
 
+    <TextView
+        android:id="@+id/fileNameLabelTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_max_margin"
+        android:layout_marginTop="@dimen/default_margin"
+        android:text="@string/file_name"
+        android:textSize="@dimen/default_text_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/fileNameTv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/default_text_size"
+        android:textStyle="bold"
+        android:layout_marginStart="@dimen/default_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/fileNameLabelTv"
+        app:layout_constraintTop_toTopOf="@id/fileNameLabelTv"
+        tools:text="Bla bla bla bla bla bla bla bla bla bla bla" />
+
+    <TextView
+        android:id="@+id/statusLabelTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_max_margin"
+        android:text="@string/status"
+        android:textSize="@dimen/default_text_size"
+        app:layout_constraintEnd_toEndOf="@+id/fileNameLabelTv"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="@id/fileNameLabelTv"
+        app:layout_constraintTop_toBottomOf="@+id/fileNameLabelTv" />
+
+    <TextView
+        android:id="@+id/statusTv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/default_text_size"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="@+id/fileNameTv"
+        app:layout_constraintTop_toTopOf="@id/statusLabelTv"
+        tools:text="Ble ble ble ble ble ble ble ble ble ble ble ble ble ble ble" />
+
+    <Button
+        android:id="@+id/ok_detail_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_margin="@dimen/default_margin"
+        android:background="@color/colorAccent"
+        android:text="@string/ok"
+        android:textColor="@color/white"
+        android:textSize="@dimen/default_text_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
