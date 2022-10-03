@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import com.udacity.Constants.FILE_NAME
 import com.udacity.Constants.STATUS
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     fun onCustomBottomClicked(view: View) {
         if (currentUrl.isNotEmpty()) {
+            custom_button.buttonClicked()
             download()
         } else {
             Toast.makeText(
@@ -86,7 +88,7 @@ class MainActivity : AppCompatActivity() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) ?: -1
-
+            custom_button.buttonCompleted()
             context?.let { sendNotification(id.toInt()) }
         }
     }

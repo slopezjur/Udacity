@@ -12,27 +12,48 @@ import androidx.core.content.withStyledAttributes
 import kotlin.properties.Delegates
 
 class LoadingButton @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
+
     private var widthSize = 0
     private var heightSize = 0
-
-    private val valueAnimator = ValueAnimator()
-    private val auxRect = Rect()
     private var textMessage = ""
 
-    private var buttonState: ButtonState by Delegates.observable<ButtonState>(ButtonState.Completed) { p, old, new ->
+    private val attributes = attrs
+    private val auxRect = Rect()
 
+    private val valueAnimator = ValueAnimator()
+
+    private var buttonState: ButtonState by Delegates.observable(ButtonState.Completed) { p, old, new ->
+        if (old != new) {
+            when (new) {
+                ButtonState.Clicked -> {
+                    buttonState = ButtonState.Loading
+                    textMessage = context.getString(R.string.button_loading)
+                    invalidate()
+                }
+                ButtonState.Completed -> {
+                    buttonState = ButtonState.Completed
+                    textMessage = context.getString(R.string.download)
+                    invalidate()
+                }
+                else -> {
+                    // Do nothing
+                }
+            }
+        }
     }
 
     private var paintRect = Paint().apply {
-        context.withStyledAttributes(attrs, R.styleable.LoadingButton) {
+        context.withStyledAttributes(attributes, R.styleable.LoadingButton) {
             color = getColor(R.styleable.LoadingButton_buttonBackgroundColor, 0)
         }
     }
 
     private var paintText = Paint().apply {
-        context.withStyledAttributes(attrs, R.styleable.LoadingButton) {
+        context.withStyledAttributes(attributes, R.styleable.LoadingButton) {
             color = getColor(R.styleable.LoadingButton_buttonTextColor, 0)
             textSize = getDimensionPixelSize(R.styleable.LoadingButton_buttonTextSize, 0) + 0f
             textMessage = getString(R.styleable.LoadingButton_buttonTextMessage).toString()
@@ -44,6 +65,11 @@ class LoadingButton @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        drawDownloadButton(canvas)
+        drawDownloadText(canvas)
+    }
+
+    private fun drawDownloadButton(canvas: Canvas?) {
         canvas?.drawRect(widthSize + 0f, heightSize + 0f, 0f, 0f, paintRect)
         paintText.getTextBounds(
             textMessage,
@@ -51,6 +77,9 @@ class LoadingButton @JvmOverloads constructor(
             textMessage.length,
             auxRect
         )
+    }
+
+    private fun drawDownloadText(canvas: Canvas?) {
         // TODO : Check how to write text
         canvas?.drawText(
             textMessage.uppercase(),
@@ -71,6 +100,14 @@ class LoadingButton @JvmOverloads constructor(
         widthSize = w
         heightSize = h
         setMeasuredDimension(w, h)
+    }
+
+    fun buttonClicked() {
+        buttonState = ButtonState.Clicked
+    }
+
+    fun buttonCompleted() {
+        buttonState = ButtonState.Completed
     }
 
 }
