@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.View
@@ -21,6 +22,7 @@ class LoadingButton @JvmOverloads constructor(
 
     companion object {
         const val DOWNLOADING_BUTTON_PERCENTAGE = 100.0
+        const val DOWNLOADING_CIRCLE_SIZE = 360
         const val PERCENTAGE = "percentage"
     }
 
@@ -32,6 +34,7 @@ class LoadingButton @JvmOverloads constructor(
     private var defaultButtonBackgroundColor = 0
 
     private val auxRect = Rect()
+    private val auxRectF = RectF()
 
     private val valueAnimator = ValueAnimator()
 
@@ -67,7 +70,7 @@ class LoadingButton @JvmOverloads constructor(
     private var paintText = Paint().apply {
         context.withStyledAttributes(attrs, R.styleable.LoadingButton) {
             color = getColor(R.styleable.LoadingButton_buttonTextColor, 0)
-            textSize = getDimensionPixelSize(R.styleable.LoadingButton_buttonTextSize, 0) + 0f
+            textSize = getDimensionPixelSize(R.styleable.LoadingButton_buttonTextSize, 0).toFloat()
             textMessage = getString(R.styleable.LoadingButton_buttonTextMessage).toString()
         }
         textAlign = Paint.Align.CENTER
@@ -77,6 +80,10 @@ class LoadingButton @JvmOverloads constructor(
 
     private val paintDownloadButton = Paint().apply {
         color = resources.getColor(R.color.colorPrimaryDark)
+    }
+
+    private val paintDownloadCircle = Paint().apply {
+        color = resources.getColor(R.color.colorAccent)
     }
 
     private fun startDownloadButtonAnimation() {
@@ -89,7 +96,8 @@ class LoadingButton @JvmOverloads constructor(
                 currentDownloadingWidth = percentage.toInt()
                 invalidate()
                 if (buttonState == ButtonState.Completed) {
-                    valueAnimator.end()
+                    currentDownloadingWidth = 0
+                    valueAnimator.cancel()
                 }
             }
             repeatCount = Animation.INFINITE
@@ -104,10 +112,11 @@ class LoadingButton @JvmOverloads constructor(
             drawDownloadingButton(canvas)
         }
         drawDownloadText(canvas)
+        drawDownloadCircle(canvas)
     }
 
     private fun drawDownloadButton(canvas: Canvas?) {
-        canvas?.drawRect(widthSize + 0f, heightSize + 0f, 0f, 0f, paintRect)
+        canvas?.drawRect(widthSize.toFloat(), heightSize.toFloat(), 0f, 0f, paintRect)
         paintText.getTextBounds(
             textMessage,
             0,
@@ -120,8 +129,8 @@ class LoadingButton @JvmOverloads constructor(
         // TODO : Check how to write text
         canvas?.drawText(
             textMessage.uppercase(),
-            (widthSize / 2) + 0f,
-            (heightSize / 2) + 0f - auxRect.exactCenterY(),
+            (widthSize / 2).toFloat(),
+            (heightSize / 2).toFloat() - auxRect.exactCenterY(),
             paintText
         )
     }
@@ -129,7 +138,25 @@ class LoadingButton @JvmOverloads constructor(
     private fun drawDownloadingButton(canvas: Canvas?) {
         val percentageToFill =
             (widthSize * (currentDownloadingWidth / DOWNLOADING_BUTTON_PERCENTAGE)).toFloat()
-        canvas?.drawRect(percentageToFill + 0f, heightSize + 0f, 0f, 0f, paintDownloadButton)
+        canvas?.drawRect(percentageToFill, heightSize.toFloat(), 0f, 0f, paintDownloadButton)
+    }
+
+    private fun drawDownloadCircle(canvas: Canvas?) {
+        setupCircle()
+        val percentageToFill =
+            (DOWNLOADING_CIRCLE_SIZE * (currentDownloadingWidth / DOWNLOADING_BUTTON_PERCENTAGE)).toFloat()
+        canvas?.drawArc(auxRectF, 270f, percentageToFill, true, paintDownloadCircle)
+    }
+
+    private fun setupCircle() {
+        val horizontalCenter = widthSize - ((widthSize / 2) / 2) + paintText.textSize
+        val verticalCenter = (heightSize / 2).toFloat()
+        auxRectF.set(
+            horizontalCenter - paintText.textSize,
+            verticalCenter - paintText.textSize,
+            horizontalCenter + paintText.textSize,
+            verticalCenter + paintText.textSize
+        )
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
