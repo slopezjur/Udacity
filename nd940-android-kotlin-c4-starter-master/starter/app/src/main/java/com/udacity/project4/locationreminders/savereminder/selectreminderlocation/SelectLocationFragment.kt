@@ -46,9 +46,13 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
          * user has installed Google Play services and returned to the app.
          */
         _map = googleMap
-        val sydney = LatLng(-34.0, 151.0)
-        map.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        map.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val latitude = 40.417162967071626
+        val longitude = -3.683910194746891
+        val zoomLevel = 15f
+
+        val home = LatLng(latitude, longitude)
+        map.addMarker(MarkerOptions().position(home).title("My House"))
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoomLevel))
     }
 
     override fun onCreateView(
