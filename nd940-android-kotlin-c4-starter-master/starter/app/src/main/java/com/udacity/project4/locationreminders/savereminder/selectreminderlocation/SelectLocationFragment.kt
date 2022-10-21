@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.BuildConfig
@@ -50,6 +52,7 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
 
     private var _map: GoogleMap? = null
     private val map get() = _map!!
+    private val TAG = SelectLocationFragment::class.java.simpleName
 
     private val callback = OnMapReadyCallback { googleMap ->
         /**
@@ -69,9 +72,11 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
         val home = LatLng(latitude, longitude)
         map.addMarker(MarkerOptions().position(home).title("My House"))
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoomLevel))
+        map.uiSettings.isZoomControlsEnabled = true
         enableMyLocation()
         setMapLongClick(map)
         setPoiClick(map)
+        setMapStyle(map)
     }
 
     private val runningQOrLater = android.os.Build.VERSION.SDK_INT >=
@@ -302,6 +307,25 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
                     .title(poi.name)
             )
             poiMarker?.showInfoWindow()
+        }
+    }
+
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+            // Customize the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            val success = map.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    requireContext(),
+                    R.raw.map_style
+                )
+            )
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style. Error: ", e)
         }
     }
 
