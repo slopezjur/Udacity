@@ -36,7 +36,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
+import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
+import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
@@ -70,17 +72,23 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
         val zoomLevel = 15f
 
         val home = LatLng(latitude, longitude)
-        map.addMarker(MarkerOptions().position(home).title("My House"))
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoomLevel))
         map.uiSettings.isZoomControlsEnabled = true
         enableMyLocation()
         setMapLongClick(map)
         setPoiClick(map)
         setMapStyle(map)
+
+        map.setOnMarkerClickListener {
+            it.remove()
+            true
+        }
     }
 
     private val runningQOrLater = android.os.Build.VERSION.SDK_INT >=
             android.os.Build.VERSION_CODES.Q
+
+    private var reminderDataItem = ReminderDataItem(null, null, null, null, null)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -93,14 +101,14 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
 
         setDisplayHomeAsUpEnabled(true)
 
+        binding.saveLastReminder.setOnClickListener {
+            onLocationSelected()
+        }
+
 //        TODO: add the map setup implementation
 //        TODO: zoom to the user location after taking his permission
-//        TODO: add style to the map
 //        TODO: put a marker to location that the user selected
 
-
-//        TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
 
         return binding.root
     }
@@ -115,9 +123,10 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
     }
 
     private fun onLocationSelected() {
-        //        TODO: When the user confirms on the selected location,
-        //         send back the selected location details to the view model
-        //         and navigate back to the previous fragment to save the reminder and add the geofence
+        binding.viewModel?.reminderSelectedLocationStr?.value = reminderDataItem.location
+        binding.viewModel?.latitude?.value = reminderDataItem.latitude
+        binding.viewModel?.longitude?.value = reminderDataItem.longitude
+        binding.viewModel?.navigationCommand?.value = NavigationCommand.Back
     }
 
     override fun onRequestPermissionsResult(
@@ -283,6 +292,9 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
 
     private fun setMapLongClick(map: GoogleMap) {
         map.setOnMapLongClickListener { latLng ->
+
+            map.clear()
+
             val snippet = String.format(
                 Locale.getDefault(),
                 "Lat: %1$.5f, Long: %2$.5f",
@@ -294,26 +306,42 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
                     .position(latLng)
                     .title(getString(R.string.dropped_pin))
                     .snippet(snippet)
+            )
 
+            reminderDataItem = ReminderDataItem(
+                null,
+                null,
+                null,
+                latLng.latitude,
+                latLng.longitude
             )
         }
     }
 
     private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener { poi ->
+
+            map.clear()
+
             val poiMarker = map.addMarker(
                 MarkerOptions()
                     .position(poi.latLng)
                     .title(poi.name)
             )
             poiMarker?.showInfoWindow()
+
+            reminderDataItem = ReminderDataItem(
+                null,
+                null,
+                poi.name,
+                poi.latLng.latitude,
+                poi.latLng.longitude
+            )
         }
     }
 
     private fun setMapStyle(map: GoogleMap) {
         try {
-            // Customize the styling of the base map using a JSON object defined
-            // in a raw resource file.
             val success = map.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(
                     requireContext(),
@@ -355,5 +383,7 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
         private const val LOCATION_PERMISSION_INDEX = 0
         private const val BACKGROUND_LOCATION_PERMISSION_INDEX = 1
         private const val REQUEST_LOCATION_PERMISSION = 1
+        internal const val ACTION_GEOFENCE_EVENT =
+            "SelectLocationFragment.action.ACTION_GEOFENCE_EVENT"
     }
 }
