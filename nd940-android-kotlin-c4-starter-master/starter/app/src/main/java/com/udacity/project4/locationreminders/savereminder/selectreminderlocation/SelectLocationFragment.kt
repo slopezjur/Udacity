@@ -75,12 +75,13 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoomLevel))
         map.uiSettings.isZoomControlsEnabled = true
         enableMyLocation()
-        setMapLongClick(map)
+        //setMapLongClick(map)
         setPoiClick(map)
         setMapStyle(map)
 
         map.setOnMarkerClickListener {
             it.remove()
+            clearReminderDataItem()
             true
         }
     }
@@ -88,7 +89,7 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
     private val runningQOrLater = android.os.Build.VERSION.SDK_INT >=
             android.os.Build.VERSION_CODES.Q
 
-    private var reminderDataItem = ReminderDataItem(null, null, null, null, null)
+    private lateinit var reminderDataItem: ReminderDataItem
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -104,6 +105,8 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
         binding.saveLastReminder.setOnClickListener {
             onLocationSelected()
         }
+
+        clearReminderDataItem()
 
 //        TODO: add the map setup implementation
 //        TODO: zoom to the user location after taking his permission
@@ -322,6 +325,7 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
         map.setOnPoiClickListener { poi ->
 
             map.clear()
+            clearReminderDataItem()
 
             val poiMarker = map.addMarker(
                 MarkerOptions()
@@ -367,6 +371,10 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
     override fun onStart() {
         super.onStart()
         checkPermissionsAndStartGeofencing()
+    }
+
+    private fun clearReminderDataItem() {
+        reminderDataItem = ReminderDataItem(null, null, null, null, null)
     }
 
     override fun onDestroy() {

@@ -25,6 +25,19 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:context=".locationreminders.locationreminders.savereminder.selectreminderlocation" />
 
+        <TextView
+            android:id="@+id/textSelectPoi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@color/white"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:text="@string/select_poi"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <Button
             android:id="@+id/saveLastReminder"
             android:layout_width="wrap_content"
