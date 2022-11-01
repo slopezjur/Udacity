@@ -95,27 +95,20 @@ class SaveReminderFragment : BaseFragment() {
     }
 
     private fun addGeofence(reminderDataItem: ReminderDataItem) {
-        //if (viewModel.geofenceIsActive()) return
-        //val currentGeofenceIndex = viewModel.nextGeofenceIndex()
-        /*if (currentGeofenceIndex >= GeofencingConstants.NUM_LANDMARKS) {
-            removeGeofences()
-            viewModel.geofenceActivated()
-            return
-        }*/
-
         // Build the Geofence Object
         val geofence = Geofence.Builder()
             // Set the request ID, string to identify the geofence.
             .setRequestId(reminderDataItem.id)
             // Set the circular region of this geofence.
             .setCircularRegion(
+                // TODO : check values
                 reminderDataItem.latitude ?: 0.0,
                 reminderDataItem.longitude ?: 0.0,
                 GEOFENCE_RADIUS_IN_METERS
             )
             // Set the expiration duration of the geofence. This geofence gets
             // automatically removed after this period of time.
-            .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+            .setExpirationDuration(Geofence.NEVER_EXPIRE)
             // Set the transition types of interest. Alerts are only generated for these
             // transition. We track entry and exit transitions in this sample.
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
@@ -132,25 +125,19 @@ class SaveReminderFragment : BaseFragment() {
             .addGeofence(geofence)
             .build()
 
-        // First, remove any existing geofences that use our pending intent
-        geofencingClient.removeGeofences(geofencePendingIntent).run {
-            // Regardless of success/failure of the removal, add the new geofence
-            addOnCompleteListener {
-                // Add the new geofence request with the new geofence
-                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
-                    addOnSuccessListener {
-                        Log.e("Add Geofence", geofence.requestId)
-                    }
-                    addOnFailureListener {
-                        // Failed to add geofences.
-                        Toast.makeText(
-                            binding.root.context, R.string.geofences_not_added,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        if ((it.message != null)) {
-                            Log.w(TAG, it.message.toString())
-                        }
-                    }
+        // Add the new geofence request with the new geofence
+        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
+            addOnSuccessListener {
+                Log.e("Add Geofence", geofence.requestId)
+            }
+            addOnFailureListener {
+                // Failed to add geofences.
+                Toast.makeText(
+                    binding.root.context, R.string.geofences_not_added,
+                    Toast.LENGTH_SHORT
+                ).show()
+                if ((it.message != null)) {
+                    Log.w(TAG, it.message.toString())
                 }
             }
         }
@@ -165,6 +152,5 @@ class SaveReminderFragment : BaseFragment() {
     companion object {
         private const val TAG = "SaveReminderFragment"
         const val GEOFENCE_RADIUS_IN_METERS = 100f
-        val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = TimeUnit.HOURS.toMillis(1)
     }
 }

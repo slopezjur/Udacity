@@ -114,11 +114,6 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
 
         clearReminderDataItem()
 
-//        TODO: add the map setup implementation
-//        TODO: zoom to the user location after taking his permission
-//        TODO: put a marker to location that the user selected
-
-
         return binding.root
     }
 
