@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.`is`
@@ -87,7 +88,7 @@ class RemindersDaoTest {
         database.reminderDao().deleteAllReminders()
         val remindersListDatabase = database.reminderDao().getReminders()
 
-        assertThat(remindersListDatabase, null)
+        assertEquals(remindersListDatabase, emptyList<ReminderDTO>())
     }
 
     private fun createFakeRepositoryList(): MutableList<ReminderDTO> {
