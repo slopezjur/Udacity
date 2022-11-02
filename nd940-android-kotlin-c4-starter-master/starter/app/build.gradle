@@ -16,6 +16,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -39,6 +40,10 @@ android {
         dataBinding true
     }
     namespace 'com.udacity.project4'
+
+    kapt {
+        generateStubs = true
+    }
 }
 
 dependencies {
@@ -121,4 +126,5 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:8.0.2'
     implementation "com.google.android.gms:play-services-auth:$authPlayServicesVersion"
 
+    implementation 'com.android.support:multidex:1.0.3'
 }
