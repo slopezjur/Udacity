@@ -5,6 +5,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
+import com.udacity.project4.locationreminders.data.dto.Result
+import junit.framework.TestCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -22,8 +24,6 @@ import org.junit.runner.RunWith
 @MediumTest
 class RemindersLocalRepositoryTest {
 
-    private lateinit var reminderDao: RemindersDao
-
     private lateinit var database: RemindersDatabase
 
     private lateinit var remindersLocalRepository: RemindersLocalRepository
@@ -35,7 +35,8 @@ class RemindersLocalRepositoryTest {
             RemindersDatabase::class.java
         ).build()
 
-        remindersLocalRepository = RemindersLocalRepository(reminderDao, Dispatchers.Main)
+        remindersLocalRepository =
+            RemindersLocalRepository(database.reminderDao(), Dispatchers.Main)
     }
 
     @After
@@ -49,15 +50,49 @@ class RemindersLocalRepositoryTest {
         }
 
         val reminderLocal = remindersList.last()
-        val reminderDatabase = remindersLocalRepository.getReminder(reminderLocal.id)
+        val reminderDatabase =
+            remindersLocalRepository.getReminder(reminderLocal.id) as Result.Success<ReminderDTO>
+        val reminderDatabaseDto = reminderDatabase.data
 
-        assertThat(reminderDatabase as ReminderDTO, notNullValue())
-        assertThat(reminderDatabase.id, `is`(reminderLocal.id))
-        assertThat(reminderDatabase.title, `is`(reminderLocal.title))
-        assertThat(reminderDatabase.description, `is`(reminderLocal.description))
-        assertThat(reminderDatabase.location, `is`(reminderLocal.location))
-        assertThat(reminderDatabase.latitude, `is`(reminderLocal.latitude))
-        assertThat(reminderDatabase.longitude, `is`(reminderLocal.longitude))
+        assertThat(reminderDatabaseDto, notNullValue())
+        assertThat(reminderDatabaseDto.id, `is`(reminderLocal.id))
+        assertThat(reminderDatabaseDto.title, `is`(reminderLocal.title))
+        assertThat(reminderDatabaseDto.description, `is`(reminderLocal.description))
+        assertThat(reminderDatabaseDto.location, `is`(reminderLocal.location))
+        assertThat(reminderDatabaseDto.latitude, `is`(reminderLocal.latitude))
+        assertThat(reminderDatabaseDto.longitude, `is`(reminderLocal.longitude))
+    }
+
+    @Test
+    fun saveRemindersAndGetReminders() = runBlocking {
+        val remindersList = createFakeRepositoryList()
+        remindersList.forEach {
+            remindersLocalRepository.saveReminder(it)
+        }
+
+        val remindersListDatabase =
+            remindersLocalRepository.getReminders() as Result.Success<List<ReminderDTO>>
+        val remindersListDatabaseDto = remindersListDatabase.data
+
+        assertThat(remindersListDatabaseDto, notNullValue())
+        assertThat(remindersListDatabaseDto[0], `is`(remindersList[0]))
+        assertThat(remindersListDatabaseDto[1], `is`(remindersList[1]))
+        assertThat(remindersListDatabaseDto[2], `is`(remindersList[2]))
+        assertThat(remindersListDatabaseDto.size, `is`(remindersList.size))
+    }
+
+    @Test
+    fun saveRemindersAndDeleteAllReminders() = runBlocking {
+        val remindersList = createFakeRepositoryList()
+        remindersList.forEach {
+            remindersLocalRepository.saveReminder(it)
+        }
+
+        remindersLocalRepository.deleteAllReminders()
+        val remindersListDatabase =
+            remindersLocalRepository.getReminders() as Result.Success<List<ReminderDTO>>
+
+        TestCase.assertEquals(remindersListDatabase.data, emptyList<ReminderDTO>())
     }
 
     private fun createFakeRepositoryList(): MutableList<ReminderDTO> {
