@@ -20,10 +20,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Lifecycle
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -46,7 +43,7 @@ import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.*
 
-class SelectLocationFragment : BaseFragment(), MenuProvider {
+class SelectLocationFragment : BaseFragment() {
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -107,6 +104,7 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
         binding.lifecycleOwner = this
 
         setDisplayHomeAsUpEnabled(true)
+        setHasOptionsMenu(true)
 
         binding.saveLastReminder.setOnClickListener {
             onLocationSelected()
@@ -121,9 +119,6 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
-
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun onLocationSelected() {
@@ -133,27 +128,28 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
         binding.viewModel?.navigationCommand?.value = NavigationCommand.Back
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.map_options, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.map_options, menu)
     }
 
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        when (menuItem.itemId) {
-            R.id.normal_map -> {
-                map.mapType = GoogleMap.MAP_TYPE_NORMAL
-            }
-            R.id.hybrid_map -> {
-                map.mapType = GoogleMap.MAP_TYPE_HYBRID
-            }
-            R.id.satellite_map -> {
-                map.mapType = GoogleMap.MAP_TYPE_SATELLITE
-            }
-            R.id.terrain_map -> {
-                map.mapType = GoogleMap.MAP_TYPE_TERRAIN
-            }
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.normal_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_NORMAL
+            super.onOptionsItemSelected(item)
         }
-
-        return true
+        R.id.hybrid_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_HYBRID
+            super.onOptionsItemSelected(item)
+        }
+        R.id.satellite_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            super.onOptionsItemSelected(item)
+        }
+        R.id.terrain_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_TERRAIN
+            super.onOptionsItemSelected(item)
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
     private fun setMapLongClick(map: GoogleMap) {
@@ -340,7 +336,7 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
         ActivityCompat.requestPermissions(
             requireActivity(),
             arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
             ),
             MY_PERMISSIONS_REQUEST_LOCATION
         )
@@ -406,8 +402,8 @@ class SelectLocationFragment : BaseFragment(), MenuProvider {
                         startActivity(
                             Intent(
                                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.fromParts("package", requireActivity().packageName, null),
-                            ),
+                                Uri.fromParts("package", requireActivity().packageName, null)
+                            )
                         )
                     }
                 }

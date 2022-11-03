@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs.kotlin"
-apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "com.udacity.project4"
@@ -39,11 +39,6 @@ android {
     buildFeatures {
         dataBinding true
     }
-    namespace 'com.udacity.project4'
-
-    kapt {
-        generateStubs = true
-    }
 }
 
 dependencies {
@@ -58,12 +53,17 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintVersion"
 
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
 
     // Architecture Components
     //Navigation dependencies
-    kapt "androidx.lifecycle:lifecycle-common-java8:$archLifecycleVersion"
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-rc1'
+    androidTestImplementation project(path: ':app')
+    kapt "androidx.lifecycle:lifecycle-compiler:$archLifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$archLifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$archLifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$archLifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$archLifecycleVersion"
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
@@ -113,18 +113,21 @@ dependencies {
     // Once https://issuetracker.google.com/127986458 is fixed this can be testImplementation
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
     implementation "androidx.test:core:$androidXTestCoreVersion"
-    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
+    implementation "androidx.fragment:fragment:$fragmentVersion"
     androidTestImplementation "org.mockito:mockito-core:$mockitoVersion"
     androidTestImplementation "com.linkedin.dexmaker:dexmaker-mockito:$dexMakerVersion"
     androidTestImplementation('org.koin:koin-test:2.0.1') { exclude group: 'org.mockito' }
 
+
+
     //Maps & Geofencing
-    implementation "com.google.android.gms:play-services-location:$locationPlayServicesVersion"
-    implementation "com.google.android.gms:play-services-maps:$mapsPlayServicesVersion"
+    implementation "com.google.android.gms:play-services-location:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-maps:$playServicesVersion"
 
     // Firebase
-    implementation 'com.firebaseui:firebase-ui-auth:8.0.2'
-    implementation "com.google.android.gms:play-services-auth:$authPlayServicesVersion"
+    implementation 'com.firebaseui:firebase-ui-auth:5.0.0'
+    implementation "com.google.android.gms:play-services-auth:$playServicesVersion"
 
     implementation 'com.android.support:multidex:1.0.3'
+
 }
