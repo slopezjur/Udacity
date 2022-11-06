@@ -2,13 +2,25 @@ package com.example.android.politicalpreparedness.election
 
 import android.os.Bundle
 import android.view.*
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import com.example.android.politicalpreparedness.R
+import com.example.android.politicalpreparedness.databinding.FragmentVoterInfoBinding
 
 class VoterInfoFragment : Fragment() {
 
+    private var _binding: FragmentVoterInfoBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
+
+        _binding = DataBindingUtil.inflate(
+            inflater, R.layout.fragment_voter_info, container, false
+        )
+
+        return binding.root
 
         //TODO: Add ViewModel values and create ViewModel
 

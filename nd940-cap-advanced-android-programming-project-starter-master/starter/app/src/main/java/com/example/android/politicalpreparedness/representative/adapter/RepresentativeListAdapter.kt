@@ -7,12 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.databinding.ViewholderRepresentativeBinding
 import com.example.android.politicalpreparedness.network.models.Channel
+import com.example.android.politicalpreparedness.network.models.Election
 import com.example.android.politicalpreparedness.representative.model.Representative
 
 class RepresentativeListAdapter: ListAdapter<Representative, RepresentativeViewHolder>(RepresentativeDiffCallback()){
@@ -37,6 +40,18 @@ class RepresentativeViewHolder(val binding: ViewholderRepresentativeBinding): Re
         //TODO: Show www link ** Hint: Use provided helper methods
 
         binding.executePendingBindings()
+    }
+
+    companion object {
+        fun from(parent: ViewGroup): RepresentativeViewHolder {
+            val withDataBinding: ViewholderRepresentativeBinding = DataBindingUtil.inflate(
+                LayoutInflater.from(parent.context),
+                R.layout.viewholder_representative,
+                parent,
+                false
+            )
+            return RepresentativeViewHolder(withDataBinding)
+        }
     }
 
     //TODO: Add companion object to inflate ViewHolder (from)
@@ -79,5 +94,15 @@ class RepresentativeViewHolder(val binding: ViewholderRepresentativeBinding): Re
 }
 
 //TODO: Create RepresentativeDiffCallback
+class RepresentativeDiffCallback : DiffUtil.ItemCallback<Representative>() {
+    override fun areItemsTheSame(oldItem: Representative, newItem: Representative): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun areContentsTheSame(oldItem: Representative, newItem: Representative): Boolean {
+        TODO("Not yet implemented")
+    }
+
+}
 
 //TODO: Create RepresentativeListener

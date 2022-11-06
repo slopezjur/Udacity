@@ -6,7 +6,11 @@ import android.location.Location
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import com.example.android.politicalpreparedness.R
+import com.example.android.politicalpreparedness.databinding.FragmentElectionBinding
+import com.example.android.politicalpreparedness.databinding.FragmentVoterInfoBinding
 import com.example.android.politicalpreparedness.network.models.Address
 import java.util.Locale
 
@@ -18,9 +22,19 @@ class DetailFragment : Fragment() {
 
     //TODO: Declare ViewModel
 
+    //private var _binding: FragmentDetailBinding? = null
+    private var _binding: FragmentElectionBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
+
+        _binding = DataBindingUtil.inflate(
+            inflater, R.layout.fragment_election, container, false
+        )
+
+        return binding.root
 
         //TODO: Establish bindings
 
@@ -48,6 +62,7 @@ class DetailFragment : Fragment() {
 
     private fun isPermissionGranted() : Boolean {
         //TODO: Check if permission is already granted and return (true = granted, false = denied/other)
+        return false
     }
 
     private fun getLocation() {
