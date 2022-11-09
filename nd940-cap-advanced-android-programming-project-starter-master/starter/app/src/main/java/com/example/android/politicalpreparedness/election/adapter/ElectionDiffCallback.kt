@@ -6,10 +6,10 @@ import com.example.android.politicalpreparedness.network.models.Election
 class ElectionDiffCallback : DiffUtil.ItemCallback<Election>() {
 
     override fun areItemsTheSame(oldItem: Election, newItem: Election): Boolean {
-        TODO("Not yet implemented")
+        return oldItem === newItem
     }
 
     override fun areContentsTheSame(oldItem: Election, newItem: Election): Boolean {
-        TODO("Not yet implemented")
+        return oldItem == newItem
     }
 }
