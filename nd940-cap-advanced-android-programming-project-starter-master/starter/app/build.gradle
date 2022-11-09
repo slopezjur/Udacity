@@ -77,4 +77,6 @@ dependencies {
 
     // Location
     implementation "com.google.android.gms:play-services-location:$version_play_services_location"
+
+    implementation "com.squareup.okhttp3:logging-interceptor:4.9.1"
 }
