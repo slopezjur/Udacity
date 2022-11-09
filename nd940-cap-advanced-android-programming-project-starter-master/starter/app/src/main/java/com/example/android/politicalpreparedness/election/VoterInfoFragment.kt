@@ -41,4 +41,8 @@ class VoterInfoFragment : Fragment() {
 
     //TODO: Create method to load URL intents
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
 }
