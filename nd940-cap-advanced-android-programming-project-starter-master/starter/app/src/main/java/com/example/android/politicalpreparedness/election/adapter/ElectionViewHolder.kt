@@ -11,7 +11,7 @@ import com.example.android.politicalpreparedness.network.models.Election
 class ElectionViewHolder(private val viewholderElectionBinding: ViewholderElectionBinding) :
     RecyclerView.ViewHolder(viewholderElectionBinding.root) {
 
-    fun bind(listener: ElectionListener, election: Election) {
+    fun bind(listener: ElectionClickListener, election: Election) {
         viewholderElectionBinding.election = election
         viewholderElectionBinding.clickListener = listener
         viewholderElectionBinding.executePendingBindings()
