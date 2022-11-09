@@ -29,6 +29,10 @@ class ElectionsViewModel(
         }
     }
 
+    fun navigateToElectionDetail(election: Election) {
+        TODO("Not yet implemented")
+    }
+
     //TODO: Create functions to navigate to saved or upcoming election voter info
 
 }
