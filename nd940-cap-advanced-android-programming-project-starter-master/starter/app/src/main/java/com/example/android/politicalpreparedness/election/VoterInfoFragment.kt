@@ -36,6 +36,7 @@ class VoterInfoFragment : Fragment() {
             inflater, R.layout.fragment_voter_info, container, false
         )
 
+        //TODO: Add binding values
         binding.lifecycleOwner = this
         binding.voterInfoViewModel = voterInfoViewModel
 
@@ -44,25 +45,24 @@ class VoterInfoFragment : Fragment() {
             val division = VoterInfoFragmentArgs.fromBundle(it).argDivision
             val electionId = VoterInfoFragmentArgs.fromBundle(it).argElectionId
 
+            //TODO: Populate voter info -- hide views without provided data.
+            /**
+            Hint: You will need to ensure proper data is provided from previous fragment.
+             */
             voterInfoViewModel.getVoterInfo(
                 VoterInfoDto(
                     address = "${division.country}, ${division.state}",
-                    electionId = electionId.toString()
+                    electionId = electionId
                 )
             )
+
+
+            //TODO: Handle loading of URLs
+
+            //TODO: Handle save button UI state
+
         }
 
-        //TODO: Add binding values
-
-        //TODO: Populate voter info -- hide views without provided data.
-        /**
-        Hint: You will need to ensure proper data is provided from previous fragment.
-         */
-
-
-        //TODO: Handle loading of URLs
-
-        //TODO: Handle save button UI state
         //TODO: cont'd Handle save button clicks
 
         return binding.root

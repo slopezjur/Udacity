@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.android.politicalpreparedness.database.ElectionDao
 import com.example.android.politicalpreparedness.network.CivicsRepository
 import com.example.android.politicalpreparedness.network.ResultState
+import com.example.android.politicalpreparedness.network.models.Election
 import com.example.android.politicalpreparedness.network.models.VoterInfoResponse
 import kotlinx.coroutines.launch
 
@@ -19,12 +20,19 @@ class VoterInfoViewModel(
     val voterInfoResponse: LiveData<VoterInfoResponse>
         get() = _voterInfoResponse
 
+    private val _followButtonState = MutableLiveData<Boolean>()
+    val followButtonState: LiveData<Boolean>
+        get() = _followButtonState
+
+    private var election: Election? = null
+
     //TODO: Add var and methods to populate voter info
     fun getVoterInfo(voterInfoDto: VoterInfoDto) {
         viewModelScope.launch {
             val resultState = civicsRepository.getVoterinfo(voterInfoDto)
             getResultState(resultState)
 
+            getElection(voterInfoDto)
         }
     }
 
@@ -41,10 +49,48 @@ class VoterInfoViewModel(
             }
         }
     }
+
+    private suspend fun getElection(voterInfoDto: VoterInfoDto) {
+        election = electionDao.getElectionById(voterInfoDto.electionId)
+
+        if(election != null) {
+            _followButtonState.value = false
+        } else {
+            _followButtonState.value = true
+            election = civicsRepository.getElections().firstOrNull {
+                it.id == voterInfoDto.electionId
+            }
+        }
+    }
+
     //TODO: Add var and methods to support loading URLs
 
+    fun setFollowButtonState() {
+        if (_followButtonState.value == false) {
+            _followButtonState.value = true
+            removeElection()
+        } else {
+            _followButtonState.value = false
+            saveElection()
+        }
+    }
+
     //TODO: Add var and methods to save and remove elections to local database
-    //TODO: cont'd -- Populate initial state of save button to reflect proper action based on election saved status
+    private fun saveElection() {
+        viewModelScope.launch {
+            election?.let {
+                electionDao.insertElection(it)
+            }
+        }
+    }
+
+    private fun removeElection() {
+        viewModelScope.launch {
+            election?.let {
+                electionDao.deleteElectionById(it.id)
+            }
+        }
+    }
 
     /**
      * Hint: The saved state can be accomplished in multiple ways. It is directly related to how elections are saved/removed from the database.
