@@ -6,4 +6,8 @@
     <string name="elections_logo">Elections logo</string>
     <string name="follow_election">Follow Election</string>
     <string name="unfollow_election">Unfollow Election</string>
+    <string name="election_information">Election Information</string>
+    <string name="voting_locations">Voting Locations</string>
+    <string name="ballot_info">Ballot Information</string>
+    <string name="correspondence_address">Correspondence Address</string>
 </resources>

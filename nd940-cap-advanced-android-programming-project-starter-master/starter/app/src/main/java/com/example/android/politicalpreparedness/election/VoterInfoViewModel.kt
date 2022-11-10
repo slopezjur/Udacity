@@ -25,13 +25,15 @@ class VoterInfoViewModel(
         get() = _followButtonState
 
     private var election: Election? = null
+    var votingLocationFinderUrl: String? = null
+    var ballotInfoUrl: String? = null
 
-    //TODO: Add var and methods to populate voter info
     fun getVoterInfo(voterInfoDto: VoterInfoDto) {
         viewModelScope.launch {
             val resultState = civicsRepository.getVoterinfo(voterInfoDto)
             getResultState(resultState)
 
+            // TODO : Don't really like this...
             getElection(voterInfoDto)
         }
     }
@@ -40,6 +42,7 @@ class VoterInfoViewModel(
         when (resultState) {
             is ResultState.Success -> {
                 _voterInfoResponse.value = resultState.data
+                setupUrls()
             }
             is ResultState.Error -> {
                 // do nothing
@@ -50,10 +53,17 @@ class VoterInfoViewModel(
         }
     }
 
+    private fun setupUrls() {
+        votingLocationFinderUrl =
+            _voterInfoResponse.value?.state?.firstOrNull()?.electionAdministrationBody?.votingLocationFinderUrl
+        ballotInfoUrl =
+            _voterInfoResponse.value?.state?.firstOrNull()?.electionAdministrationBody?.ballotInfoUrl
+    }
+
     private suspend fun getElection(voterInfoDto: VoterInfoDto) {
         election = electionDao.getElectionById(voterInfoDto.electionId)
 
-        if(election != null) {
+        if (election != null) {
             _followButtonState.value = false
         } else {
             _followButtonState.value = true
@@ -62,8 +72,6 @@ class VoterInfoViewModel(
             }
         }
     }
-
-    //TODO: Add var and methods to support loading URLs
 
     fun setFollowButtonState() {
         if (_followButtonState.value == false) {
@@ -75,7 +83,6 @@ class VoterInfoViewModel(
         }
     }
 
-    //TODO: Add var and methods to save and remove elections to local database
     private fun saveElection() {
         viewModelScope.launch {
             election?.let {
@@ -91,9 +98,4 @@ class VoterInfoViewModel(
             }
         }
     }
-
-    /**
-     * Hint: The saved state can be accomplished in multiple ways. It is directly related to how elections are saved/removed from the database.
-     */
-
 }

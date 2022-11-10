@@ -1,9 +1,12 @@
 package com.example.android.politicalpreparedness.election
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -36,7 +39,6 @@ class VoterInfoFragment : Fragment() {
             inflater, R.layout.fragment_voter_info, container, false
         )
 
-        //TODO: Add binding values
         binding.lifecycleOwner = this
         binding.voterInfoViewModel = voterInfoViewModel
 
@@ -45,10 +47,6 @@ class VoterInfoFragment : Fragment() {
             val division = VoterInfoFragmentArgs.fromBundle(it).argDivision
             val electionId = VoterInfoFragmentArgs.fromBundle(it).argElectionId
 
-            //TODO: Populate voter info -- hide views without provided data.
-            /**
-            Hint: You will need to ensure proper data is provided from previous fragment.
-             */
             voterInfoViewModel.getVoterInfo(
                 VoterInfoDto(
                     address = "${division.country}, ${division.state}",
@@ -56,19 +54,25 @@ class VoterInfoFragment : Fragment() {
                 )
             )
 
-
-            //TODO: Handle loading of URLs
-
-            //TODO: Handle save button UI state
-
+            binding.stateLocations.setOnClickListener {
+                voterInfoViewModel.votingLocationFinderUrl?.let { url ->
+                    openUrl(url)
+                }
+            }
+            binding.stateBallot.setOnClickListener {
+                voterInfoViewModel.ballotInfoUrl?.let { url ->
+                    openUrl(url)
+                }
+            }
         }
-
-        //TODO: cont'd Handle save button clicks
 
         return binding.root
     }
 
-    //TODO: Create method to load URL intents
+    private fun openUrl(url: String) {
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        ContextCompat.startActivity(requireContext(), browserIntent, null)
+    }
 
     override fun onDestroy() {
         super.onDestroy()
