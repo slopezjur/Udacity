@@ -32,7 +32,8 @@ class ElectionsFragment : Fragment() {
     private var _binding: FragmentElectionBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var electionListAdapter: ElectionListAdapter
+    private lateinit var electionsListAdapter: ElectionListAdapter
+    private lateinit var savedElectionsListAdapter: ElectionListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,37 +48,56 @@ class ElectionsFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.electionsViewModel = electionsViewModel
 
-        electionListAdapter = ElectionListAdapter(
+        electionsListAdapter = ElectionListAdapter(
             ElectionClickListener { election ->
-                this.findNavController().navigate(
-                    ElectionsFragmentDirections.actionElectionsFragmentToVoterInfoFragment(
-                        election.id,
-                        election.division
-                    )
-                )
+                navigateToToVoterInfoFragment(election)
+            }
+        )
+
+        savedElectionsListAdapter = ElectionListAdapter(
+            ElectionClickListener { election ->
+                navigateToToVoterInfoFragment(election)
             }
         )
 
         binding.upcomingElectionsRv.layoutManager = LinearLayoutManager(requireContext())
-        binding.upcomingElectionsRv.adapter = electionListAdapter
+        binding.upcomingElectionsRv.adapter = electionsListAdapter
 
-        //TODO: Populate recycler adapters
+        binding.savedElectionsRv.layoutManager = LinearLayoutManager(requireContext())
+        binding.savedElectionsRv.adapter = savedElectionsListAdapter
 
         electionsViewModel.getElections()
+        electionsViewModel.getSavedElections()
 
         return binding.root
     }
 
-    //TODO: Refresh adapters when fragment loads
+    private fun navigateToToVoterInfoFragment(election: Election) {
+        this.findNavController().navigate(
+            ElectionsFragmentDirections.actionElectionsFragmentToVoterInfoFragment(
+                election.id,
+                election.division
+            )
+        )
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        electionsViewModel.upcomingElection.observe(
+        electionsViewModel.upcomingElections.observe(
             viewLifecycleOwner,
             Observer<List<Election>> { elections ->
                 elections?.apply {
-                    electionListAdapter.submitList(elections)
-                    electionListAdapter.notifyDataSetChanged()
+                    electionsListAdapter.submitList(elections)
+
+                }
+            })
+
+        electionsViewModel.upcomingSavedElections.observe(
+            viewLifecycleOwner,
+            Observer<List<Election>> { elections ->
+                elections?.apply {
+                    savedElectionsListAdapter.submitList(elections)
 
                 }
             })

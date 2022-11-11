@@ -10,4 +10,5 @@
     <string name="voting_locations">Voting Locations</string>
     <string name="ballot_info">Ballot Information</string>
     <string name="correspondence_address">Correspondence Address</string>
+    <string name="saved_elections">Saved Elections</string>
 </resources>
