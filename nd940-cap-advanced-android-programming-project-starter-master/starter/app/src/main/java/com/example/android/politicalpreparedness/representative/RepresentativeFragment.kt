@@ -4,15 +4,22 @@ import android.content.Context
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.android.politicalpreparedness.R
-import com.example.android.politicalpreparedness.databinding.FragmentElectionBinding
-import com.example.android.politicalpreparedness.databinding.FragmentVoterInfoBinding
+import com.example.android.politicalpreparedness.databinding.FragmentRepresentativeBinding
+import com.example.android.politicalpreparedness.network.CivicsRepository
 import com.example.android.politicalpreparedness.network.models.Address
-import java.util.Locale
+import com.example.android.politicalpreparedness.representative.adapter.RepresentativeListAdapter
+import com.example.android.politicalpreparedness.representative.model.Representative
+import java.util.*
 
 class DetailFragment : Fragment() {
 
@@ -20,33 +27,71 @@ class DetailFragment : Fragment() {
         //TODO: Add Constant for Location request
     }
 
-    //TODO: Declare ViewModel
-
-    //private var _binding: FragmentDetailBinding? = null
-    private var _binding: FragmentElectionBinding? = null
-    private val binding get() = _binding!!
-
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
-
-        _binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_election, container, false
-        )
-
-        return binding.root
-
-        //TODO: Establish bindings
-
-        //TODO: Define and assign Representative adapter
-
-        //TODO: Populate Representative adapter
-
-        //TODO: Establish button listeners for field and location search
-
+    private val representativeViewModel: RepresentativeViewModel by lazy {
+        ViewModelProvider(
+            this, RepresentativesViewModelFactory(
+                CivicsRepository()
+            )
+        ).get(RepresentativeViewModel::class.java)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    private var _binding: FragmentRepresentativeBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var representativeListAdapter: RepresentativeListAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+
+        _binding = DataBindingUtil.inflate(
+            inflater, R.layout.fragment_representative, container, false
+        )
+
+        binding.lifecycleOwner = this
+        binding.representativeViewModel = representativeViewModel
+
+        representativeListAdapter = RepresentativeListAdapter()
+
+        binding.representativesRv.layoutManager = LinearLayoutManager(requireContext())
+        binding.representativesRv.adapter = representativeListAdapter
+
+        representativeViewModel.getRepresentativesByAddress()
+
+        //TODO: Establish button listeners for field and location search
+        binding.buttonSearch.setOnClickListener {
+            hideKeyboard()
+
+            representativeViewModel.getRepresentativesByAddress()
+            if (representativeViewModel.address.value != null) {
+                //check new address entered
+                representativeViewModel.getRepresentativesByAddress()
+            }
+        }
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        representativeViewModel.representatives.observe(
+            viewLifecycleOwner,
+            Observer<List<Representative>> { representatives ->
+                representatives?.apply {
+                    representativeListAdapter.submitList(representatives)
+
+                }
+            })
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         //TODO: Handle location permission result to get location on permission granted
     }
@@ -60,7 +105,7 @@ class DetailFragment : Fragment() {
         }
     }
 
-    private fun isPermissionGranted() : Boolean {
+    private fun isPermissionGranted(): Boolean {
         //TODO: Check if permission is already granted and return (true = granted, false = denied/other)
         return false
     }
@@ -73,10 +118,16 @@ class DetailFragment : Fragment() {
     private fun geoCodeLocation(location: Location): Address {
         val geocoder = Geocoder(context, Locale.getDefault())
         return geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                .map { address ->
-                    Address(address.thoroughfare, address.subThoroughfare, address.locality, address.adminArea, address.postalCode)
-                }
-                .first()
+            .map { address ->
+                Address(
+                    address.thoroughfare,
+                    address.subThoroughfare,
+                    address.locality,
+                    address.adminArea,
+                    address.postalCode
+                )
+            }
+            .first()
     }
 
     private fun hideKeyboard() {
@@ -84,4 +135,8 @@ class DetailFragment : Fragment() {
         imm.hideSoftInputFromWindow(view!!.windowToken, 0)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
 }

@@ -11,4 +11,15 @@
     <string name="ballot_info">Ballot Information</string>
     <string name="correspondence_address">Correspondence Address</string>
     <string name="saved_elections">Saved Elections</string>
+    <string name="use_my_location">Use My Location</string>
+    <string name="my_representatives">My Representatives</string>
+    <string name="representative_search">Representative Search</string>
+    <string name="address_line_1">Address Line 1</string>
+    <string name="address_line_2">Address Line 2</string>
+    <string name="city">City</string>
+    <string name="zip">Zip</string>
+    <string name="twitter_profile">Twitter Profile</string>
+    <string name="facebook_profile">Facebook Profile</string>
+    <string name="representative_photo">Representative Photo</string>
+    <string name="web_profile">Web Profile</string>
 </resources>

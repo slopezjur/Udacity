@@ -40,8 +40,14 @@ class CivicsRepository {
         TODO("Not yet implemented")
     }
 
-    suspend fun getRepresentatives(): Response<RepresentativeResponse> {
-        TODO("Not yet implemented")
+    suspend fun getRepresentatives(address: String): ResultState<RepresentativeResponse> {
+        val result = CivicsApi.retrofitService.getRepresentatives(address)
+        return if (result.isSuccessful && result.body() != null) {
+            result.body()?.let {
+                Success(it)
+            } ?: Error(Exception(result.errorBody()?.charStream()?.readText()))
+        } else {
+            Error(Exception(result.errorBody()?.charStream()?.readText()))
+        }
     }
-
 }
