@@ -45,5 +45,4 @@
             app:touchAnchorId="@+id/constraint_representatives" />
     </Transition>
 
-
 </MotionScene>
