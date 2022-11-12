@@ -24,7 +24,7 @@
             android:layout_height="@dimen/default_photo_size"
             android:layout_marginStart="@dimen/margin_8"
             android:layout_marginTop="@dimen/margin_8"
-            android:layout_marginBottom="@dimen/default_margin"
+            android:layout_marginBottom="@dimen/margin_12"
             android:contentDescription="@string/representative_photo"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
