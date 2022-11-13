@@ -9,7 +9,6 @@ import android.location.Geocoder
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
-import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
@@ -30,9 +29,7 @@ import com.example.android.politicalpreparedness.representative.adapter.Represen
 import com.example.android.politicalpreparedness.representative.model.Representative
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.material.snackbar.Snackbar
@@ -66,7 +63,6 @@ class DetailFragment : Fragment() {
         maxWaitTime = 60
     }
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationCallback: LocationCallback
     private var userRequestLocation = false
 
     override fun onCreateView(
@@ -130,36 +126,11 @@ class DetailFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                val locationList = locationResult.locations
-                if (locationList.isNotEmpty()) {
-                    //The last location in the list is the newest
-                    val lastLocation = locationList.last()
-                    /*representativeViewModel.setAddressFromGeoLocation(
-                        geoCodeLocation(
-                            lastLocation
-                        )
-                    )*/
-                    stopLocationUpdates()
-                }
-            }
-        }
     }
 
     override fun onStart() {
         super.onStart()
         checkLocationPermissions()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        stopLocationUpdates()
-    }
-
-    private fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -179,7 +150,7 @@ class DetailFragment : Fragment() {
             Snackbar.make(
                 binding.root,
                 R.string.grant_location_permission,
-                Snackbar.LENGTH_INDEFINITE
+                Snackbar.LENGTH_LONG
             ).setAction(getString(R.string.settings)) {
                 startActivity(Intent().apply {
                     action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
@@ -261,23 +232,10 @@ class DetailFragment : Fragment() {
                                     )
                                     userRequestLocation = false
                                 }
-                            } ?: getLocationFromLocationCallBack()
+                            }
                         }
                 }
             }
-        }
-    }
-
-    private fun getLocationFromLocationCallBack() {
-        if (requireContext().checkSelfPermission(
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.getMainLooper()
-            )
         }
     }
 
