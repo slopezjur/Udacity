@@ -6,7 +6,6 @@ import com.example.android.politicalpreparedness.network.ResultState.Success
 import com.example.android.politicalpreparedness.network.models.Election
 import com.example.android.politicalpreparedness.network.models.RepresentativeResponse
 import com.example.android.politicalpreparedness.network.models.VoterInfoResponse
-import retrofit2.Response
 
 class CivicsRepository {
 
@@ -20,10 +19,13 @@ class CivicsRepository {
         }
     }
 
-    suspend fun getVoterinfo(voterInfoDto: VoterInfoDto): ResultState<VoterInfoResponse> {
-        val result = CivicsApi.retrofitService.getVoterinfo(
-            // TODO : Review address
-            "1263 Pacific Ave. Kansas City KS", //voterInfoDto.address,
+    suspend fun getVoterInfo(voterInfoDto: VoterInfoDto): ResultState<VoterInfoResponse> {
+        val result = CivicsApi.retrofitService.getVoterInfo(
+            // TODO : Review address - Testing purpose due to a problem when we try to get the address
+            //  from the previous API response. API expects a valid parsed address or it will always
+            //  return a 400 bad request if the is not a valid address
+            "1263 Pacific Ave. Kansas City KS",
+            //voterInfoDto.address,
             voterInfoDto.electionId
         )
 
@@ -34,10 +36,6 @@ class CivicsRepository {
         } else {
             Error(Exception(result.errorBody()?.charStream()?.readText()))
         }
-    }
-
-    suspend fun getVoterinfo(ocdId: String): Response<RepresentativeResponse> {
-        TODO("Not yet implemented")
     }
 
     suspend fun getRepresentatives(address: String): ResultState<RepresentativeResponse> {

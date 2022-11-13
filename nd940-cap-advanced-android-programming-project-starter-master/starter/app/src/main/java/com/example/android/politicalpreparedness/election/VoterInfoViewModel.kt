@@ -30,7 +30,7 @@ class VoterInfoViewModel(
 
     fun getVoterInfo(voterInfoDto: VoterInfoDto) {
         viewModelScope.launch {
-            val resultState = civicsRepository.getVoterinfo(voterInfoDto)
+            val resultState = civicsRepository.getVoterInfo(voterInfoDto)
             getResultState(resultState)
 
             // TODO : Don't really like this...

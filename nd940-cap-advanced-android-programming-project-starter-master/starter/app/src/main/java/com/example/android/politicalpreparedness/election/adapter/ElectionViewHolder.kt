@@ -8,16 +8,15 @@ import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.databinding.ViewholderElectionBinding
 import com.example.android.politicalpreparedness.network.models.Election
 
-class ElectionViewHolder(private val viewholderElectionBinding: ViewholderElectionBinding) :
-    RecyclerView.ViewHolder(viewholderElectionBinding.root) {
+class ElectionViewHolder(private val viewHolderElectionBinding: ViewholderElectionBinding) :
+    RecyclerView.ViewHolder(viewHolderElectionBinding.root) {
 
     fun bind(listener: ElectionClickListener, election: Election) {
-        viewholderElectionBinding.election = election
-        viewholderElectionBinding.clickListener = listener
-        viewholderElectionBinding.executePendingBindings()
+        viewHolderElectionBinding.election = election
+        viewHolderElectionBinding.clickListener = listener
+        viewHolderElectionBinding.executePendingBindings()
     }
 
-    //TODO: Add companion object to inflate ViewHolder (from)
     companion object {
         fun from(parent: ViewGroup): ElectionViewHolder {
             val withDataBinding: ViewholderElectionBinding = DataBindingUtil.inflate(
