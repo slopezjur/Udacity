@@ -28,8 +28,8 @@ class VoterInfoViewModel(
     val showLoading: LiveData<Boolean>
         get() = _showLoading
 
-    private val _showError = MutableLiveData<Boolean>()
-    val showError: LiveData<Boolean>
+    private val _showError = MutableLiveData<String>()
+    val showError: LiveData<String>
         get() = _showError
 
     private var election: Election? = null
@@ -38,7 +38,6 @@ class VoterInfoViewModel(
 
     fun getVoterInfo(voterInfoDto: VoterInfoDto) {
         _showLoading.value = true
-        _showError.value = false
         viewModelScope.launch {
             val resultState = civicsRepository.getVoterInfo(voterInfoDto)
             getResultState(resultState)
@@ -57,7 +56,7 @@ class VoterInfoViewModel(
             }
             is ResultState.Error -> {
                 _showLoading.value = false
-                _showError.value = true
+                _showError.value = resultState.exception.message
             }
             ResultState.Loading -> {
                 // do nothing

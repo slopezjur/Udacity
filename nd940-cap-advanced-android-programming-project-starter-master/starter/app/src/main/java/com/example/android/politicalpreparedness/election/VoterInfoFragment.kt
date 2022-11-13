@@ -91,8 +91,14 @@ class VoterInfoFragment : Fragment() {
 
         voterInfoViewModel.showError.observe(
             viewLifecycleOwner,
-            Observer<Boolean> { showError ->
-                if (showError) {
+            Observer<String> { errorMessage ->
+                if (errorMessage.isNotEmpty()) {
+                    Snackbar.make(
+                        binding.root,
+                        errorMessage,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                } else {
                     Snackbar.make(
                         binding.root,
                         R.string.error_api,
