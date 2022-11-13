@@ -107,9 +107,9 @@ class ElectionsFragment : Fragment() {
             viewLifecycleOwner,
             Observer<Boolean> { showLoading ->
                 if (showLoading) {
-                    setVoterInfoLoading(View.VISIBLE)
+                    binding.electionsLoading.visibility = View.VISIBLE
                 } else {
-                    setVoterInfoLoading(View.GONE)
+                    binding.electionsLoading.visibility = View.GONE
                 }
             })
 
@@ -130,10 +130,6 @@ class ElectionsFragment : Fragment() {
                     ).show()
                 }
             })
-    }
-
-    private fun setVoterInfoLoading(visibility: Int) {
-        binding.electionsLoading.visibility = visibility
     }
 
     override fun onDestroy() {

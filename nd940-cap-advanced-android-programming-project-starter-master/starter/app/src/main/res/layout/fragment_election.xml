@@ -92,15 +92,17 @@
             android:layout_height="match_parent"
             android:alpha="0.5"
             android:background="@color/gray50"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
 
         <ProgressBar
             android:id="@+id/electionsProgressBar"
             android:layout_width="@dimen/default_loading_size"
-            android:layout_height="40dp"
+            android:layout_height="@dimen/default_loading_size"
             android:indeterminateTint="@color/colorPrimary"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
