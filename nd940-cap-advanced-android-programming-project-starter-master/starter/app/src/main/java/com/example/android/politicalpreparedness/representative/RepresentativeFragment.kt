@@ -87,8 +87,6 @@ class DetailFragment : Fragment() {
         binding.representativesRv.layoutManager = LinearLayoutManager(requireContext())
         binding.representativesRv.adapter = representativeListAdapter
 
-        representativeViewModel.getRepresentativesByAddress()
-
         binding.buttonSearch.setOnClickListener {
             hideKeyboard()
 
@@ -123,6 +121,34 @@ class DetailFragment : Fragment() {
                 if (userRequestLocationSearch) {
                     representativeViewModel.setUserRequestLocationSearch(false)
                     representativeViewModel.getRepresentativesByAddress()
+                }
+            })
+
+        representativeViewModel.showLoading.observe(
+            viewLifecycleOwner,
+            Observer<Boolean> { showLoading ->
+                if (showLoading) {
+                    binding.representativesProgressBar.visibility = View.VISIBLE
+                } else {
+                    binding.representativesProgressBar.visibility = View.GONE
+                }
+            })
+
+        representativeViewModel.showError.observe(
+            viewLifecycleOwner,
+            Observer<String> { errorMessage ->
+                if (errorMessage.isNotEmpty()) {
+                    Snackbar.make(
+                        binding.root,
+                        errorMessage,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        R.string.error_api,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                 }
             })
     }

@@ -27,7 +27,16 @@ class RepresentativeViewModel(
     val userRequestLocationSearch: LiveData<Boolean>
         get() = _userRequestLocationSearch
 
+    private val _showLoading = MutableLiveData<Boolean>()
+    val showLoading: LiveData<Boolean>
+        get() = _showLoading
+
+    private val _showError = MutableLiveData<String>()
+    val showError: LiveData<String>
+        get() = _showError
+
     fun getRepresentativesByAddress() {
+        getResultState(ResultState.Loading)
         viewModelScope.launch {
             address.value?.let {
                 val resultState =
@@ -43,12 +52,14 @@ class RepresentativeViewModel(
                 val (offices, officials) = resultState.data
                 _representatives.value =
                     offices.flatMap { office -> office.getRepresentatives(officials) }
+                _showLoading.value = false
             }
             is ResultState.Error -> {
-                // do nothing
+                _showLoading.value = false
+                _showError.value = resultState.exception.message
             }
             ResultState.Loading -> {
-                // do nothing
+                _showLoading.value = true
             }
         }
     }
