@@ -37,7 +37,7 @@ class VoterInfoViewModel(
     var ballotInfoUrl: String? = null
 
     fun getVoterInfo(voterInfoDto: VoterInfoDto) {
-        _showLoading.value = true
+        getResultState(ResultState.Loading)
         viewModelScope.launch {
             val resultState = civicsRepository.getVoterInfo(voterInfoDto)
             getResultState(resultState)
@@ -59,7 +59,7 @@ class VoterInfoViewModel(
                 _showError.value = resultState.exception.message
             }
             ResultState.Loading -> {
-                // do nothing
+                _showLoading.value = true
             }
         }
     }

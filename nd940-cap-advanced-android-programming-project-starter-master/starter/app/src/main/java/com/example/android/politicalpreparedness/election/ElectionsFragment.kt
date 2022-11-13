@@ -17,6 +17,7 @@ import com.example.android.politicalpreparedness.election.adapter.ElectionClickL
 import com.example.android.politicalpreparedness.election.adapter.ElectionListAdapter
 import com.example.android.politicalpreparedness.network.CivicsRepository
 import com.example.android.politicalpreparedness.network.models.Election
+import com.google.android.material.snackbar.Snackbar
 
 class ElectionsFragment : Fragment() {
 
@@ -101,6 +102,38 @@ class ElectionsFragment : Fragment() {
 
                 }
             })
+
+        electionsViewModel.showLoading.observe(
+            viewLifecycleOwner,
+            Observer<Boolean> { showLoading ->
+                if (showLoading) {
+                    setVoterInfoLoading(View.VISIBLE)
+                } else {
+                    setVoterInfoLoading(View.GONE)
+                }
+            })
+
+        electionsViewModel.showError.observe(
+            viewLifecycleOwner,
+            Observer<String> { errorMessage ->
+                if (errorMessage.isNotEmpty()) {
+                    Snackbar.make(
+                        binding.root,
+                        errorMessage,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        R.string.error_api,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            })
+    }
+
+    private fun setVoterInfoLoading(visibility: Int) {
+        binding.electionsLoading.visibility = visibility
     }
 
     override fun onDestroy() {

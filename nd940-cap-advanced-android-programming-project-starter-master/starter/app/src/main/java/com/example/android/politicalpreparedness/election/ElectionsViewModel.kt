@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.politicalpreparedness.database.ElectionDao
 import com.example.android.politicalpreparedness.network.CivicsRepository
+import com.example.android.politicalpreparedness.network.ResultState
 import com.example.android.politicalpreparedness.network.models.Election
 import kotlinx.coroutines.launch
 
@@ -22,9 +23,34 @@ class ElectionsViewModel(
     val upcomingSavedElections: LiveData<List<Election>>
         get() = _upcomingSavedElections
 
+    private val _showLoading = MutableLiveData<Boolean>()
+    val showLoading: LiveData<Boolean>
+        get() = _showLoading
+
+    private val _showError = MutableLiveData<String>()
+    val showError: LiveData<String>
+        get() = _showError
+
     fun getElections() {
+        getResultState(ResultState.Loading)
         viewModelScope.launch {
-            _upcomingElections.value = civicsRepository.getElections()
+            getResultState(civicsRepository.getElectionsResult())
+        }
+    }
+
+    private fun getResultState(resultState: ResultState<List<Election>>) {
+        when (resultState) {
+            is ResultState.Success -> {
+                _upcomingElections.value = resultState.data
+                _showLoading.value = false
+            }
+            is ResultState.Error -> {
+                _showLoading.value = false
+                _showError.value = resultState.exception.message
+            }
+            ResultState.Loading -> {
+                _showLoading.value = true
+            }
         }
     }
 

@@ -19,6 +19,16 @@ class CivicsRepository {
         }
     }
 
+    suspend fun getElectionsResult(): ResultState<List<Election>> {
+        val elections = getElections()
+
+        return if (elections.isNotEmpty()) {
+            Success(elections)
+        } else {
+            Error(Exception())
+        }
+    }
+
     suspend fun getVoterInfo(voterInfoDto: VoterInfoDto): ResultState<VoterInfoResponse> {
         val result = CivicsApi.retrofitService.getVoterInfo(
             // TODO : Review address - Testing purpose due to a problem when we try to get the address
