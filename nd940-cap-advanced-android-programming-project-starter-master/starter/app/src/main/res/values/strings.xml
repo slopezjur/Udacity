@@ -22,4 +22,6 @@
     <string name="facebook_profile">Facebook Profile</string>
     <string name="representative_photo">Representative Photo</string>
     <string name="web_profile">Web Profile</string>
+    <string name="grant_location_permission">You need to grant location permission in order to look for your location.</string>
+    <string name="settings">Settings</string>
 </resources>
