@@ -15,10 +15,10 @@
     <androidx.constraintlayout.motion.widget.MotionLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutDescription="@xml/scene_representative_search">
+        app:layoutDescription="@xml/scene_representatives_search">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/container_search"
+            android:id="@+id/fragment_representatives_search_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -113,12 +113,12 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/container_representatives"
+            android:id="@+id/fragment_representatives_representatives_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/container_search">
+            app:layout_constraintTop_toBottomOf="@+id/fragment_representatives_search_container">
 
             <TextView
                 android:id="@+id/representative_title"
