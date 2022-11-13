@@ -24,11 +24,21 @@ class VoterInfoViewModel(
     val followButtonState: LiveData<Boolean>
         get() = _followButtonState
 
+    private val _showLoading = MutableLiveData<Boolean>()
+    val showLoading: LiveData<Boolean>
+        get() = _showLoading
+
+    private val _showError = MutableLiveData<Boolean>()
+    val showError: LiveData<Boolean>
+        get() = _showError
+
     private var election: Election? = null
     var votingLocationFinderUrl: String? = null
     var ballotInfoUrl: String? = null
 
     fun getVoterInfo(voterInfoDto: VoterInfoDto) {
+        _showLoading.value = true
+        _showError.value = false
         viewModelScope.launch {
             val resultState = civicsRepository.getVoterInfo(voterInfoDto)
             getResultState(resultState)
@@ -43,9 +53,11 @@ class VoterInfoViewModel(
             is ResultState.Success -> {
                 _voterInfoResponse.value = resultState.data
                 setupUrls()
+                _showLoading.value = false
             }
             is ResultState.Error -> {
-                // do nothing
+                _showLoading.value = false
+                _showError.value = true
             }
             ResultState.Loading -> {
                 // do nothing

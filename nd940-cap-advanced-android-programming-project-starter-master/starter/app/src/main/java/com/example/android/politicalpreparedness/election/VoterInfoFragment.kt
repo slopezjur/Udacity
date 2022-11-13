@@ -9,11 +9,13 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.database.ElectionDatabase
 import com.example.android.politicalpreparedness.databinding.FragmentVoterInfoBinding
 import com.example.android.politicalpreparedness.network.CivicsRepository
+import com.google.android.material.snackbar.Snackbar
 
 class VoterInfoFragment : Fragment() {
 
@@ -72,6 +74,36 @@ class VoterInfoFragment : Fragment() {
     private fun openUrl(url: String) {
         val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         ContextCompat.startActivity(requireContext(), browserIntent, null)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        voterInfoViewModel.showLoading.observe(
+            viewLifecycleOwner,
+            Observer<Boolean> { showLoading ->
+                if (showLoading) {
+                    setVoterInfoLoading(View.VISIBLE)
+                } else {
+                    setVoterInfoLoading(View.GONE)
+                }
+            })
+
+        voterInfoViewModel.showError.observe(
+            viewLifecycleOwner,
+            Observer<Boolean> { showError ->
+                if (showError) {
+                    Snackbar.make(
+                        binding.root,
+                        R.string.error_api,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            })
+    }
+
+    private fun setVoterInfoLoading(visibility: Int) {
+        binding.voterInfoLoading.visibility = visibility
     }
 
     override fun onDestroy() {

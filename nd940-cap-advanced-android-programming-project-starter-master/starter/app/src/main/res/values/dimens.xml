@@ -11,4 +11,5 @@
     <dimen name="default_margin">24dp</dimen>
     <dimen name="default_icon_size">30dp</dimen>
     <dimen name="default_photo_size">60dp</dimen>
+    <dimen name="default_loading_size">40dp</dimen>
 </resources>

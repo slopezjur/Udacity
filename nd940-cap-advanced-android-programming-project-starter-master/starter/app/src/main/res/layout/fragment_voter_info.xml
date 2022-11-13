@@ -114,5 +114,34 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:text="@string/follow_election" />
 
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/voterInfoLoading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="voterInfoLoadingAlpha,voterInfoProgressBar" />
+
+        <View
+            android:id="@+id/voterInfoLoadingAlpha"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.5"
+            android:background="@color/gray50"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/voterInfoProgressBar"
+            android:layout_width="@dimen/default_loading_size"
+            android:layout_height="40dp"
+            android:indeterminateTint="@color/colorPrimary"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
