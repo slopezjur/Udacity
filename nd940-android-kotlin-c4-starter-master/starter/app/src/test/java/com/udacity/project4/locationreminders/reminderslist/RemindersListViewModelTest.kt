@@ -14,6 +14,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -28,10 +29,15 @@ class RemindersListViewModelTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
+    // Roboelectric works "fine" with SDK 29
+    @Config(sdk = [29])
     @Test
     fun loadReminders_whenLoadRemiders_resultIsSuccess() = mainCoroutineRule.runBlockingTest {
         stopKoin()
-        reminderDataSource = FakeDataSource(createFakeRepositoryList())
+        reminderDataSource = FakeDataSource()
+        createFakeRepositoryList().forEach {
+            reminderDataSource.saveReminder(it)
+        }
 
         val remindersListViewModel =
             RemindersListViewModel(ApplicationProvider.getApplicationContext(), reminderDataSource)
@@ -47,10 +53,13 @@ class RemindersListViewModelTest {
         assertEquals(remindersListViewModel.showNoData.getOrAwaitValue(), false)
     }
 
+    // Roboelectric works "fine" with SDK 29
+    @Config(sdk = [29])
     @Test
     fun loadReminders_whenLoadRemiders_resultIsFail() = mainCoroutineRule.runBlockingTest {
         stopKoin()
-        reminderDataSource = FakeDataSource(null)
+        reminderDataSource = FakeDataSource()
+        reminderDataSource.setReturnError(true)
 
         val remindersListViewModel =
             RemindersListViewModel(ApplicationProvider.getApplicationContext(), reminderDataSource)
@@ -59,12 +68,12 @@ class RemindersListViewModelTest {
 
         remindersListViewModel.loadReminders()
 
-        assertEquals(remindersListViewModel.showLoading.getOrAwaitValue(), true)
+        assertEquals(true, remindersListViewModel.showLoading.getOrAwaitValue())
         mainCoroutineRule.resumeDispatcher()
-        assertEquals(remindersListViewModel.showLoading.getOrAwaitValue(), false)
-        val exception = Exception("Reminder not found")
-        assertEquals(remindersListViewModel.showSnackBar.getOrAwaitValue(), "$exception")
-        assertEquals(remindersListViewModel.showNoData.getOrAwaitValue(), true)
+        assertEquals(false, remindersListViewModel.showLoading.getOrAwaitValue())
+        val exception = "Reminder not found"
+        assertEquals(exception, remindersListViewModel.showSnackBar.getOrAwaitValue())
+        assertEquals(true, remindersListViewModel.showNoData.getOrAwaitValue())
     }
 
     private fun createFakeRepositoryList(): MutableList<ReminderDTO> {

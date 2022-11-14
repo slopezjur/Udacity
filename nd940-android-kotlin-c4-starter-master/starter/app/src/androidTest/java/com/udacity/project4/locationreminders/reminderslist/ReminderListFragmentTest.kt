@@ -113,7 +113,7 @@ class ReminderListFragmentTest : KoinTest {
     fun reminderListFragment_whenFragmentError_showSnackBar() {
         val message = "Reminder not found"
 
-        fakeDataSource.setError()
+        fakeDataSource.setReturnError(true)
 
         launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
 

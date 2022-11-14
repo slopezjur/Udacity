@@ -1,33 +1,45 @@
 package com.udacity.project4.locationreminders.data
 
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
-import com.udacity.project4.locationreminders.data.dto.Result
+import com.udacity.project4.locationreminders.data.dto.ResultState
 
 //Use FakeDataSource that acts as a test double to the LocalDataSource
-class FakeDataSource(
-    var remindersList: MutableList<ReminderDTO>? = mutableListOf()
-) : ReminderDataSource {
+class FakeDataSource : ReminderDataSource {
 
-    override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        return remindersList?.let {
-            Result.Success(ArrayList(it))
-        } ?: Result.Error(Exception("Reminder not found").toString())
+    var remindersList: MutableList<ReminderDTO> = mutableListOf()
+
+    private var shouldReturnError = false
+
+    override suspend fun getReminders(): ResultState<List<ReminderDTO>> {
+        return if (shouldReturnError) {
+            getErrorResult()
+        } else {
+            ResultState.Success(remindersList)
+        }
     }
 
     override suspend fun saveReminder(reminder: ReminderDTO) {
-        remindersList?.add(reminder)
+        remindersList.add(reminder)
     }
 
-    override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        return remindersList?.let { list ->
-            val result = list.firstOrNull { it.id == id }
+    override suspend fun getReminder(id: String): ResultState<ReminderDTO> {
+        val result = remindersList.firstOrNull { it.id == id }
+        return if (shouldReturnError) {
             result?.let {
-                Result.Success(it)
-            } ?: Result.Error(Exception("Reminder not found").toString())
-        } ?: Result.Error(Exception("Reminder not found").toString())
+                ResultState.Success(it)
+            } ?: getErrorResult()
+        } else {
+            getErrorResult()
+        }
     }
+
+    private fun getErrorResult() = ResultState.Error(Exception("Reminder not found"))
 
     override suspend fun deleteAllReminders() {
-        remindersList = null
+        remindersList.clear()
+    }
+
+    fun setReturnError(value: Boolean) {
+        shouldReturnError = value
     }
 }

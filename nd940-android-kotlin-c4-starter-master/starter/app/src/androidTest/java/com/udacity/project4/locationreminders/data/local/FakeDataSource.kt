@@ -2,20 +2,20 @@ package com.udacity.project4.locationreminders.data.local
 
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
-import com.udacity.project4.locationreminders.data.dto.Result
+import com.udacity.project4.locationreminders.data.dto.ResultState
 
 //Use FakeDataSource that acts as a test double to the LocalDataSource
 class FakeDataSource : ReminderDataSource {
 
-    var error = false
-
     var remindersList: MutableList<ReminderDTO> = mutableListOf()
 
-    override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        return if(error) {
-            Result.Error("Reminder not found")
+    private var shouldReturnError = false
+
+    override suspend fun getReminders(): ResultState<List<ReminderDTO>> {
+        return if (shouldReturnError) {
+            getErrorResult()
         } else {
-            Result.Success(remindersList)
+            ResultState.Success(remindersList)
         }
     }
 
@@ -23,18 +23,24 @@ class FakeDataSource : ReminderDataSource {
         remindersList.add(reminder)
     }
 
-    override suspend fun getReminder(id: String): Result<ReminderDTO> {
+    override suspend fun getReminder(id: String): ResultState<ReminderDTO> {
         val result = remindersList.firstOrNull { it.id == id }
-        return result?.let {
-            Result.Success(it)
-        } ?: Result.Error("Reminder not found")
+        return if (shouldReturnError) {
+            result?.let {
+                ResultState.Success(it)
+            } ?: getErrorResult()
+        } else {
+            getErrorResult()
+        }
     }
+
+    private fun getErrorResult() = ResultState.Error(Exception("Reminder not found"))
 
     override suspend fun deleteAllReminders() {
         remindersList.clear()
     }
 
-    fun setError() {
-        error = true
+    fun setReturnError(value: Boolean) {
+        shouldReturnError = value
     }
 }

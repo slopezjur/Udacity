@@ -5,7 +5,7 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
-import com.udacity.project4.locationreminders.data.dto.Result
+import com.udacity.project4.locationreminders.data.dto.ResultState
 import junit.framework.TestCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,7 +51,7 @@ class RemindersLocalRepositoryTest {
 
         val reminderLocal = remindersList.last()
         val reminderDatabase =
-            remindersLocalRepository.getReminder(reminderLocal.id) as Result.Success<ReminderDTO>
+            remindersLocalRepository.getReminder(reminderLocal.id) as ResultState.Success<ReminderDTO>
         val reminderDatabaseDto = reminderDatabase.data
 
         assertThat(reminderDatabaseDto, notNullValue())
@@ -72,11 +72,11 @@ class RemindersLocalRepositoryTest {
         // WHEN
         val reminderDatabaseError = remindersLocalRepository.getReminder(
             remindersList.last().id
-        ) as Result.Error
+        ) as ResultState.Error
 
         // THEN
         assertThat(reminderDatabaseError, notNullValue())
-        assertThat(reminderDatabaseError.message, `is`(errorMessage))
+        assertThat(reminderDatabaseError.exception.message, `is`(errorMessage))
     }
 
     @Test
@@ -87,7 +87,7 @@ class RemindersLocalRepositoryTest {
         }
 
         val remindersListDatabase =
-            remindersLocalRepository.getReminders() as Result.Success<List<ReminderDTO>>
+            remindersLocalRepository.getReminders() as ResultState.Success<List<ReminderDTO>>
         val remindersListDatabaseDto = remindersListDatabase.data
 
         assertThat(remindersListDatabaseDto, notNullValue())
@@ -106,7 +106,7 @@ class RemindersLocalRepositoryTest {
 
         remindersLocalRepository.deleteAllReminders()
         val remindersListDatabase =
-            remindersLocalRepository.getReminders() as Result.Success<List<ReminderDTO>>
+            remindersLocalRepository.getReminders() as ResultState.Success<List<ReminderDTO>>
 
         TestCase.assertEquals(remindersListDatabase.data, emptyList<ReminderDTO>())
     }
