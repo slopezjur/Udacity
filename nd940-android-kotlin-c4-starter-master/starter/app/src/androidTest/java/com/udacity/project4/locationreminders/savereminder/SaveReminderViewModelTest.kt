@@ -4,13 +4,13 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.udacity.project4.R
-import com.udacity.project4.locationreminders.MainCoroutineRule
-import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.getOrAwaitValue
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import junit.framework.Assert.assertEquals
 import com.udacity.project4.locationreminders.data.dto.ResultState
+import com.udacity.project4.locationreminders.data.local.FakeDataSource
+import com.udacity.project4.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
@@ -31,9 +31,6 @@ class SaveReminderViewModelTest {
     @ExperimentalCoroutinesApi
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
-
-    // Roboelectric works "fine" with SDK 29
-    @Config(sdk = [29])
     @Test
     fun validateAndSaveReminder_whenValidateAndSaveReminderCorrect_shouldSaveReminder() = mainCoroutineRule.runBlockingTest {
         stopKoin()
