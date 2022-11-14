@@ -64,6 +64,22 @@ class RemindersLocalRepositoryTest {
     }
 
     @Test
+    fun whenSaveRemindersAndGetById_thenGetRminderErrorMessage() = runBlocking {
+        // GIVEN
+        val remindersList = createFakeRepositoryList()
+        val errorMessage = "Reminder not found!"
+
+        // WHEN
+        val reminderDatabaseError = remindersLocalRepository.getReminder(
+            remindersList.last().id
+        ) as Result.Error
+
+        // THEN
+        assertThat(reminderDatabaseError, notNullValue())
+        assertThat(reminderDatabaseError.message, `is`(errorMessage))
+    }
+
+    @Test
     fun saveRemindersAndGetReminders() = runBlocking {
         val remindersList = createFakeRepositoryList()
         remindersList.forEach {
