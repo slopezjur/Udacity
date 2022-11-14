@@ -73,7 +73,7 @@ class SelectLocationFragment : BaseFragment() {
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, ZOOM_LEVEL))
         map.uiSettings.isZoomControlsEnabled = true
         checkLocationPermission()
-        //setMapLongClick(map)
+        setMapLongClick(map)
         setPoiClick(map)
         setMapStyle(map)
 
@@ -156,6 +156,7 @@ class SelectLocationFragment : BaseFragment() {
         map.setOnMapLongClickListener { latLng ->
 
             map.clear()
+            clearReminderDataItem()
 
             val snippet = String.format(
                 Locale.getDefault(),
@@ -173,7 +174,7 @@ class SelectLocationFragment : BaseFragment() {
             reminderDataItem = ReminderDataItem(
                 null,
                 null,
-                null,
+                getString(R.string.custom_marker),
                 latLng.latitude,
                 latLng.longitude
             )
