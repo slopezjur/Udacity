@@ -1,10 +1,13 @@
 package com.udacity.project4.authentication
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.lifecycle.map
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
@@ -21,13 +24,16 @@ class AuthenticationActivity : AppCompatActivity() {
     companion object {
         const val TAG = "LoginFragment"
         const val SIGN_IN_RESULT_CODE = 1001
+        private const val USER_LOGIN = "UserLogin"
     }
 
     private var _binding: ActivityAuthenticationBinding? = null
     private val binding get() = _binding!!
 
-    val authenticationState = FirebaseUserLiveData().map { firebaseUser ->
-        if (firebaseUser != null) {
+    lateinit var sharedpreferences: SharedPreferences
+
+    private val authenticationState = FirebaseUserLiveData().map { firebaseUser ->
+        if (firebaseUser != null || sharedpreferences.getBoolean(USER_LOGIN, false)) {
             AuthenticationState.AUTHENTICATED
         } else {
             AuthenticationState.UNAUTHENTICATED
@@ -43,7 +49,13 @@ class AuthenticationActivity : AppCompatActivity() {
 
         binding.buttonTv.setOnClickListener { launchSignInFlow() }
 
-        if (authenticationState.value == AuthenticationState.AUTHENTICATED) {
+        sharedpreferences = getSharedPreferences("mySharedPreferences", Context.MODE_PRIVATE)
+
+        if (authenticationState.value == AuthenticationState.AUTHENTICATED || sharedpreferences.getBoolean(
+                USER_LOGIN,
+                false
+            )
+        ) {
             navigateToRemindersActivity()
         }
     }
@@ -69,6 +81,9 @@ class AuthenticationActivity : AppCompatActivity() {
         if (requestCode == SIGN_IN_RESULT_CODE) {
             val response = IdpResponse.fromResultIntent(data)
             if (resultCode == Activity.RESULT_OK) {
+                sharedpreferences.edit {
+                    putBoolean(USER_LOGIN, true)
+                }
                 navigateToRemindersActivity()
             } else {
                 Log.i(TAG, "Sign in unsuccessful ${response?.error?.errorCode}")
