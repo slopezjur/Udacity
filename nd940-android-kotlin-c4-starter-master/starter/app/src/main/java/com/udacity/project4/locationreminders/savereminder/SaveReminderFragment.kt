@@ -192,20 +192,36 @@ class SaveReminderFragment : BaseFragment() {
             .build()
 
         // Add the new geofence request with the new geofence
-        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
-            addOnSuccessListener {
-                Log.e("Add Geofence", geofence.requestId)
-            }
-            addOnFailureListener {
-                // Failed to add geofences.
-                Toast.makeText(
-                    binding.root.context, R.string.geofences_not_added,
-                    Toast.LENGTH_SHORT
-                ).show()
-                if ((it.message != null)) {
-                    Log.w(TAG, it.message.toString())
+        // TODO - We cannot directly use isPermissionGranted to avoid warning:
+        //  "Call requires permission which may be rejected by user: code should explicitly
+        //  check to see if permission is available (with checkPermission) or explicitly
+        //  handle a potential SecurityException"
+        if (PackageManager.PERMISSION_GRANTED == requireContext().checkSelfPermission(
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) && PackageManager.PERMISSION_GRANTED == requireContext().checkSelfPermission(
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+        ) {
+            geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
+                addOnSuccessListener {
+                    Log.e("Add Geofence", geofence.requestId)
+                }
+                addOnFailureListener {
+                    // Failed to add geofences.
+                    Toast.makeText(
+                        binding.root.context, R.string.geofences_not_added,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    if ((it.message != null)) {
+                        Log.w(TAG, it.message.toString())
+                    }
                 }
             }
+        } else {
+            Toast.makeText(
+                binding.root.context, R.string.grant_location_permission,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

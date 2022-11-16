@@ -20,7 +20,6 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -74,7 +73,6 @@ class SelectLocationFragment : BaseFragment() {
         val home = LatLng(latitude, longitude)
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, ZOOM_LEVEL))
         map.uiSettings.isZoomControlsEnabled = true
-        checkLocationPermissions()
         setMapLongClick(map)
         setPoiClick(map)
         setMapStyle(map)
@@ -90,7 +88,6 @@ class SelectLocationFragment : BaseFragment() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
-    private var userRequestLocation = false
 
     private val locationRequest: LocationRequest = LocationRequest.create().apply {
         interval = 30
@@ -363,10 +360,7 @@ class SelectLocationFragment : BaseFragment() {
                     fusedLocationClient.lastLocation
                         .addOnSuccessListener { location: Location? ->
                             location?.let {
-                                if (userRequestLocation) {
-                                    setUserLocationOnMap(location)
-                                    userRequestLocation = false
-                                }
+                                setUserLocationOnMap(location)
                             } ?: getLocationFromLocationCallBack()
                         }
                 }
