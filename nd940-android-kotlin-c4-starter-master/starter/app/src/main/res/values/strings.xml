@@ -41,4 +41,6 @@
     <string name="geofence_too_many_pending_intents">You have provided too many PendingIntents to the addGeofences() call.</string>
     <string name="error_adding_geofence">Error Happened, Can\'t Add Geofence</string>
     <string name="custom_marker">Custom Marker</string>
+    <string name="grant_location_permission">You need to grant location permission in order to get your location.</string>
+    <string name="grant_location_background_permission">You need to grant location permission in background to add the reminder.</string>
 </resources>

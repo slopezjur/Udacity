@@ -2,10 +2,11 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.location.Location
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
@@ -16,16 +17,15 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -33,6 +33,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
+import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -72,7 +74,7 @@ class SelectLocationFragment : BaseFragment() {
         val home = LatLng(latitude, longitude)
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, ZOOM_LEVEL))
         map.uiSettings.isZoomControlsEnabled = true
-        checkLocationPermission()
+        checkLocationPermissions()
         setMapLongClick(map)
         setPoiClick(map)
         setMapStyle(map)
@@ -86,7 +88,10 @@ class SelectLocationFragment : BaseFragment() {
 
     private lateinit var reminderDataItem: ReminderDataItem
 
-    private var fusedLocationProvider: FusedLocationProviderClient? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
+    private var userRequestLocation = false
+
     private val locationRequest: LocationRequest = LocationRequest.create().apply {
         interval = 30
         fastestInterval = 10
@@ -233,43 +238,148 @@ class SelectLocationFragment : BaseFragment() {
 
     // --------------------------------------------------------------------------------------------
     // --------------------------------------------------------------------------------------------
-    // I was not able to request background permission for Location but I found this code to request it
-    // Source: https://stackoverflow.com/questions/40142331/how-to-request-location-permission-at-runtime/40142454#40142454
+    // LOCATION THING
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        fusedLocationProvider = LocationServices.getFusedLocationProviderClient(requireActivity())
+        // LocationCallback to manage when the user turn on-off GPS and get the latest Location
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                val locationList = locationResult.locations
+                if (locationList.isNotEmpty()) {
+                    //The last location in the list is the newest
+                    val lastLocation = locationList.last()
+                    setUserLocationOnMap(lastLocation)
 
-        checkLocationPermission()
-    }
-
-    private var locationCallback: LocationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            val locationList = locationResult.locations
-            if (locationList.isNotEmpty()) {
-                //The last location in the list is the newest
-                val lastLocation = locationList.last()
-                if (lastLocation != null && !map.isMyLocationEnabled) {
-                    map.isMyLocationEnabled = true
-                    map.moveCamera(
-                        CameraUpdateFactory.newLatLngZoom(
-                            LatLng(lastLocation.latitude, lastLocation.longitude),
-                            ZOOM_LEVEL
-                        )
-                    )
+                    stopLocationUpdates()
                 }
             }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
+    override fun onStart() {
+        super.onStart()
+        checkLocationPermissions()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
+    }
+
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
+            getLocation()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (grantResults.isEmpty() || grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED) {
+            Snackbar.make(
+                binding.root,
+                getString(R.string.grant_location_permission),
+                Snackbar.LENGTH_LONG
+            ).setAction(getString(R.string.settings)) {
+                startActivity(Intent().apply {
+                    action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                })
+            }.show()
+        } else {
+            getLocation()
+        }
+    }
+
+    private fun checkLocationPermissions(): Boolean {
+        return if (isPermissionGranted()) {
+            getLocation()
+            true
+        } else {
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_FOREGROUND_RESULT_CODE
+            )
+            false
+        }
+    }
+
+    private fun isPermissionGranted(): Boolean {
+        return (PackageManager.PERMISSION_GRANTED == requireContext().checkSelfPermission(
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ))
+    }
+
+    private fun getLocation() {
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val settingsClient = LocationServices.getSettingsClient(requireActivity())
+        val locationSettingsResponseTask =
+            settingsClient.checkLocationSettings(builder.build())
+        locationSettingsResponseTask.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+                    exception.startResolutionForResult(
+                        requireActivity(),
+                        REQUEST_TURN_DEVICE_LOCATION_ON
+                    )
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    Log.d(
+                        "LOCATION: ",
+                        "Error getting location settings resolution: " + sendEx.message
+                    )
+                }
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.grant_location_permission), Snackbar.LENGTH_INDEFINITE
+                ).setAction(android.R.string.ok) {
+                    getLocation()
+                }.show()
+            }
+        }
+        locationSettingsResponseTask.addOnCompleteListener {
+            if (it.isSuccessful) {
+                // TODO - We cannot directly use isPermissionGranted to avoid warning:
+                //  "Call requires permission which may be rejected by user: code should explicitly
+                //  check to see if permission is available (with checkPermission) or explicitly
+                //  handle a potential SecurityException"
+                if (requireContext().checkSelfPermission(
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    checkLocationPermissions()
+                } else {
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location: Location? ->
+                            location?.let {
+                                if (userRequestLocation) {
+                                    setUserLocationOnMap(location)
+                                    userRequestLocation = false
+                                }
+                            } ?: getLocationFromLocationCallBack()
+                        }
+                }
+            }
+        }
+    }
+
+    private fun getLocationFromLocationCallBack() {
+        if (requireContext().checkSelfPermission(
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            fusedLocationProvider?.requestLocationUpdates(
+            fusedLocationClient.requestLocationUpdates(
                 locationRequest,
                 locationCallback,
                 Looper.getMainLooper()
@@ -277,179 +387,20 @@ class SelectLocationFragment : BaseFragment() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationProvider?.removeLocationUpdates(locationCallback)
-        }
-    }
-
-    private fun checkLocationPermission() {
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    requireActivity(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            ) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Location Permission Needed")
-                    .setMessage("This app needs the Location permission, please accept to use location functionality")
-                    .setPositiveButton(
-                        "OK"
-                    ) { _, _ ->
-                        //Prompt the user once explanation has been shown
-                        requestLocationPermission()
-                    }
-                    .create()
-                    .show()
-            } else {
-                // No explanation needed, we can request the permission.
-                requestLocationPermission()
-            }
-        } else {
-            checkBackgroundLocation()
-        }
-    }
-
-    private fun checkBackgroundLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestBackgroundLocationPermission()
-        }
-    }
-
-    private fun requestLocationPermission() {
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ),
-            MY_PERMISSIONS_REQUEST_LOCATION
+    private fun setUserLocationOnMap(lastLocation: Location) {
+        map.isMyLocationEnabled = true
+        map.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(lastLocation.latitude, lastLocation.longitude),
+                ZOOM_LEVEL
+            )
         )
-    }
-
-    private fun requestBackgroundLocationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ),
-                MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION
-            )
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                MY_PERMISSIONS_REQUEST_LOCATION
-            )
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            MY_PERMISSIONS_REQUEST_LOCATION -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        fusedLocationProvider?.requestLocationUpdates(
-                            locationRequest,
-                            locationCallback,
-                            Looper.getMainLooper()
-                        )
-
-                        // Now check background location
-                        checkBackgroundLocation()
-                    }
-
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(requireContext(), "permission denied", Toast.LENGTH_LONG).show()
-
-                    // Check if we are in a state where the user has denied the permission and
-                    // selected Don't ask again
-                    if (!ActivityCompat.shouldShowRequestPermissionRationale(
-                            requireActivity(),
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        )
-                    ) {
-                        startActivity(
-                            Intent(
-                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.fromParts("package", requireActivity().packageName, null)
-                            )
-                        )
-                    }
-                }
-                return
-            }
-            MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        fusedLocationProvider?.requestLocationUpdates(
-                            locationRequest,
-                            locationCallback,
-                            Looper.getMainLooper()
-                        )
-
-                        Toast.makeText(
-                            requireContext(),
-                            "Granted Background Location Permission",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(requireContext(), "permission denied", Toast.LENGTH_LONG).show()
-                }
-                return
-
-            }
-        }
     }
 
     companion object {
         private const val ZOOM_LEVEL = 15f
-        internal const val ACTION_GEOFENCE_EVENT =
-            "SelectLocationFragment.action.ACTION_GEOFENCE_EVENT"
-        private const val MY_PERMISSIONS_REQUEST_LOCATION = 99
-        private const val MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION = 66
+        private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
+        private const val REQUEST_FOREGROUND_RESULT_CODE = 33
+        private const val LOCATION_PERMISSION_INDEX = 0
     }
-    // --------------------------------------------------------------------------------------------
-    // --------------------------------------------------------------------------------------------
 }
