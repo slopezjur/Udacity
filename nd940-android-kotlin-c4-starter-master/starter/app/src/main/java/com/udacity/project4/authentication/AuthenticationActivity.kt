@@ -1,14 +1,12 @@
 package com.udacity.project4.authentication
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.edit
-import androidx.lifecycle.map
+import androidx.lifecycle.Observer
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.udacity.project4.R
@@ -24,21 +22,12 @@ class AuthenticationActivity : AppCompatActivity() {
     companion object {
         const val TAG = "LoginFragment"
         const val SIGN_IN_RESULT_CODE = 1001
-        private const val USER_LOGIN = "UserLogin"
     }
 
     private var _binding: ActivityAuthenticationBinding? = null
     private val binding get() = _binding!!
 
-    lateinit var sharedpreferences: SharedPreferences
-
-    private val authenticationState = FirebaseUserLiveData().map { firebaseUser ->
-        if (firebaseUser != null || sharedpreferences.getBoolean(USER_LOGIN, false)) {
-            AuthenticationState.AUTHENTICATED
-        } else {
-            AuthenticationState.UNAUTHENTICATED
-        }
-    }
+    private val authenticationViewModel by viewModels<AuthenticationViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,15 +38,28 @@ class AuthenticationActivity : AppCompatActivity() {
 
         binding.buttonTv.setOnClickListener { launchSignInFlow() }
 
-        sharedpreferences = getSharedPreferences("mySharedPreferences", Context.MODE_PRIVATE)
-
-        if (authenticationState.value == AuthenticationState.AUTHENTICATED || sharedpreferences.getBoolean(
-                USER_LOGIN,
-                false
-            )
-        ) {
+        if (authenticationViewModel.authenticationState.value == AuthenticationState.AUTHENTICATED) {
             navigateToRemindersActivity()
         }
+
+        observeAuthenticationState()
+    }
+
+    private fun observeAuthenticationState() {
+        authenticationViewModel.authenticationState.observe(this, Observer { authentitcationState ->
+            when (authentitcationState) {
+                AuthenticationState.AUTHENTICATED -> {
+                    navigateToRemindersActivity()
+                    finish()
+                }
+                AuthenticationState.UNAUTHENTICATED -> {
+                    // do nothing
+                }
+                else -> {
+                    // do nothing
+                }
+            }
+        })
     }
 
     private fun navigateToRemindersActivity() {
@@ -81,9 +83,6 @@ class AuthenticationActivity : AppCompatActivity() {
         if (requestCode == SIGN_IN_RESULT_CODE) {
             val response = IdpResponse.fromResultIntent(data)
             if (resultCode == Activity.RESULT_OK) {
-                sharedpreferences.edit {
-                    putBoolean(USER_LOGIN, true)
-                }
                 navigateToRemindersActivity()
             } else {
                 Log.i(TAG, "Sign in unsuccessful ${response?.error?.errorCode}")
