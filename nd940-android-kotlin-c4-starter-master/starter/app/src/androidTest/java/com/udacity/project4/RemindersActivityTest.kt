@@ -125,7 +125,54 @@ class RemindersActivityTest :
     }
 
     @Test
-    fun createNewReminderAndSelectLocation() = runBlocking {
+    fun createNewReminderAndSelectCustomLocation() = runBlocking {
+
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        Espresso.onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
+
+        Espresso.onView(withId(R.id.reminderTitle))
+            .perform(ViewActions.typeText("title1"), ViewActions.closeSoftKeyboard())
+        Espresso.onView(withId(R.id.reminderDescription))
+            .perform(ViewActions.replaceText("description1"))
+
+        Espresso.onView(withId(R.id.saveReminder)).perform(ViewActions.click())
+
+        Espresso.onView(withId(R.id.selectLocation)).perform(ViewActions.click())
+        delay(2000)
+
+        Espresso.onView(withId(R.id.map)).perform(ViewActions.longClick())
+        delay(2000)
+
+        Espresso.onView(withId(R.id.saveLastReminder)).perform(ViewActions.click())
+        delay(2000)
+
+        Espresso.onView(withId(R.id.saveReminder)).perform(ViewActions.click())
+        delay(2000)
+
+        Espresso.onView(withText("title1")).check(
+            ViewAssertions.matches(
+                isDisplayed()
+            )
+        )
+        Espresso.onView(withText("description1")).check(
+            ViewAssertions.matches(
+                isDisplayed()
+            )
+        )
+        Espresso.onView(withText("Custom Marker")).check(
+            ViewAssertions.matches(
+                isDisplayed()
+            )
+        )
+        delay(2000)
+
+        activityScenario.close()
+    }
+
+    @Test
+    fun createNewReminderAndSelectPoiLocation() = runBlocking {
 
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
@@ -161,7 +208,6 @@ class RemindersActivityTest :
                 isDisplayed()
             )
         )
-
         Espresso.onView(withText(R.string.reminder_saved)).inRoot(
             RootMatchers.withDecorView(
                 CoreMatchers.not(
