@@ -3,13 +3,12 @@ package com.udacity.project4.locationreminders.reminderslist
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.FakeDataSource
 import com.udacity.project4.locationreminders.getOrAwaitValue
 import com.udacity.project4.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Assert.assertEquals
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,17 +39,20 @@ class RemindersListViewModelTest {
         }
 
         val remindersListViewModel =
-            RemindersListViewModel(ApplicationProvider.getApplicationContext(), reminderDataSource)
+            com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel(
+                ApplicationProvider.getApplicationContext(),
+                reminderDataSource
+            )
 
         mainCoroutineRule.pauseDispatcher()
 
         remindersListViewModel.loadReminders()
 
-        assertEquals(remindersListViewModel.showLoading.getOrAwaitValue(), true)
+        Assert.assertEquals(remindersListViewModel.showLoading.getOrAwaitValue(), true)
         mainCoroutineRule.resumeDispatcher()
-        assertEquals(remindersListViewModel.showLoading.getOrAwaitValue(), false)
-        assertEquals(remindersListViewModel.remindersList.getOrAwaitValue().size, 3)
-        assertEquals(remindersListViewModel.showNoData.getOrAwaitValue(), false)
+        Assert.assertEquals(remindersListViewModel.showLoading.getOrAwaitValue(), false)
+        Assert.assertEquals(remindersListViewModel.remindersList.getOrAwaitValue().size, 3)
+        Assert.assertEquals(remindersListViewModel.showNoData.getOrAwaitValue(), false)
     }
 
     // Roboelectric works "fine" with SDK 29
@@ -62,37 +64,40 @@ class RemindersListViewModelTest {
         reminderDataSource.setReturnError(true)
 
         val remindersListViewModel =
-            RemindersListViewModel(ApplicationProvider.getApplicationContext(), reminderDataSource)
+            com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel(
+                ApplicationProvider.getApplicationContext(),
+                reminderDataSource
+            )
 
         mainCoroutineRule.pauseDispatcher()
 
         remindersListViewModel.loadReminders()
 
-        assertEquals(true, remindersListViewModel.showLoading.getOrAwaitValue())
+        Assert.assertEquals(true, remindersListViewModel.showLoading.getOrAwaitValue())
         mainCoroutineRule.resumeDispatcher()
-        assertEquals(false, remindersListViewModel.showLoading.getOrAwaitValue())
+        Assert.assertEquals(false, remindersListViewModel.showLoading.getOrAwaitValue())
         val exception = "Reminder not found"
-        assertEquals(exception, remindersListViewModel.showSnackBar.getOrAwaitValue())
-        assertEquals(true, remindersListViewModel.showNoData.getOrAwaitValue())
+        Assert.assertEquals(exception, remindersListViewModel.showSnackBar.getOrAwaitValue())
+        Assert.assertEquals(true, remindersListViewModel.showNoData.getOrAwaitValue())
     }
 
-    private fun createFakeRepositoryList(): MutableList<ReminderDTO> {
+    private fun createFakeRepositoryList(): MutableList<com.udacity.project4.locationreminders.data.dto.ReminderDTO> {
         return mutableListOf(
-            ReminderDTO(
+            com.udacity.project4.locationreminders.data.dto.ReminderDTO(
                 title = "title1",
                 description = "description1",
                 location = "location1",
                 latitude = 1.1,
                 longitude = 1.2
             ),
-            ReminderDTO(
+            com.udacity.project4.locationreminders.data.dto.ReminderDTO(
                 title = "title2",
                 description = "description2",
                 location = "location2",
                 latitude = 2.1,
                 longitude = 2.2
             ),
-            ReminderDTO(
+            com.udacity.project4.locationreminders.data.dto.ReminderDTO(
                 title = "title3",
                 description = "description3",
                 location = "location3",

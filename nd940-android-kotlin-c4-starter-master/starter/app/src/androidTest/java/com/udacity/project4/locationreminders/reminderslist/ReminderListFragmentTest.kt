@@ -23,6 +23,7 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.FakeDataSource
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.Matchers
 import org.junit.Assert.*
@@ -35,6 +36,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
+import org.koin.test.AutoCloseKoinTest
 import org.koin.test.KoinTest
 import org.koin.test.inject
 import org.mockito.Mockito.mock
@@ -77,6 +79,7 @@ class ReminderListFragmentTest : KoinTest {
         }
 
         launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
+        delay(1000)
 
         onView(withText("title1")).check(matches(isDisplayed()))
         onView(withText("title2")).check(matches(isDisplayed()))
@@ -88,6 +91,7 @@ class ReminderListFragmentTest : KoinTest {
         fakeDataSource.deleteAllReminders()
 
         launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
+        delay(1000)
 
         onView(withId(R.id.noDataTextView)).check(matches(isDisplayed()))
     }
@@ -103,6 +107,7 @@ class ReminderListFragmentTest : KoinTest {
                     Navigation.setViewNavController(view, navController)
                 }
             }
+            delay(1000)
 
             onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
 
@@ -110,16 +115,18 @@ class ReminderListFragmentTest : KoinTest {
         }
 
     @Test
-    fun reminderListFragment_whenFragmentError_showSnackBar() {
-        val message = "Reminder not found"
+    fun reminderListFragment_whenFragmentError_showSnackBar() =
+        runBlockingTest {
+            val message = "Reminder not found"
 
-        fakeDataSource.setReturnError(true)
+            fakeDataSource.setReturnError(true)
 
-        launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
+            launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
+            delay(1000)
 
-        onView(withText(message)).inRoot(RootMatchers.withDecorView(Matchers.not(activityRule.activity.window.decorView)))
-            .check(matches(isDisplayed()))
-    }
+            onView(withText(message)).inRoot(RootMatchers.withDecorView(Matchers.not(activityRule.activity.window.decorView)))
+                .check(matches(isDisplayed()))
+        }
 
     private val testModules = module {
         viewModel {

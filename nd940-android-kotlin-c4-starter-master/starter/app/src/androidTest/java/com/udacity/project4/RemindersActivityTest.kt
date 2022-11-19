@@ -34,14 +34,13 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import org.koin.test.AutoCloseKoinTest
+import org.koin.test.KoinTest
 import org.koin.test.get
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 //END TO END test to black box test the app
-class RemindersActivityTest :
-    AutoCloseKoinTest() {// Extended Koin Test - embed autoclose @after method to close Koin after every test
+class RemindersActivityTest : KoinTest {
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
@@ -101,6 +100,7 @@ class RemindersActivityTest :
     fun createNewReminder() = runBlocking {
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
+        delay(1000)
 
         Espresso.onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
 
@@ -129,6 +129,7 @@ class RemindersActivityTest :
 
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
+        delay(1000)
 
         Espresso.onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
 
@@ -146,10 +147,8 @@ class RemindersActivityTest :
         delay(2000)
 
         Espresso.onView(withId(R.id.saveLastReminder)).perform(ViewActions.click())
-        delay(2000)
 
         Espresso.onView(withId(R.id.saveReminder)).perform(ViewActions.click())
-        delay(2000)
 
         Espresso.onView(withText("title1")).check(
             ViewAssertions.matches(
@@ -166,7 +165,17 @@ class RemindersActivityTest :
                 isDisplayed()
             )
         )
-        delay(2000)
+        Espresso.onView(withText(R.string.reminder_saved)).inRoot(
+            RootMatchers.withDecorView(
+                CoreMatchers.not(
+                    CoreMatchers.`is`(
+                        getActivity(
+                            activityScenario
+                        ).window.decorView
+                    )
+                )
+            )
+        ).check(ViewAssertions.matches(isDisplayed()))
 
         activityScenario.close()
     }
@@ -176,6 +185,7 @@ class RemindersActivityTest :
 
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
+        delay(1000)
 
         Espresso.onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
 
@@ -193,10 +203,8 @@ class RemindersActivityTest :
         delay(2000)
 
         Espresso.onView(withId(R.id.saveLastReminder)).perform(ViewActions.click())
-        delay(2000)
 
         Espresso.onView(withId(R.id.saveReminder)).perform(ViewActions.click())
-        delay(2000)
 
         Espresso.onView(withText("title1")).check(
             ViewAssertions.matches(
@@ -219,7 +227,6 @@ class RemindersActivityTest :
                 )
             )
         ).check(ViewAssertions.matches(isDisplayed()))
-        delay(2000)
 
         activityScenario.close()
     }
@@ -229,6 +236,7 @@ class RemindersActivityTest :
         val activityScenario =
             ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
+        delay(1000)
 
         Espresso.onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
 
@@ -245,7 +253,6 @@ class RemindersActivityTest :
                 isDisplayed()
             )
         )
-        delay(3000)
 
         activityScenario.close()
     }
@@ -255,6 +262,7 @@ class RemindersActivityTest :
         val activityScenario =
             ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
+        delay(1000)
 
         Espresso.onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
 
@@ -271,12 +279,11 @@ class RemindersActivityTest :
                 isDisplayed()
             )
         )
-        delay(3000)
 
         activityScenario.close()
     }
 
-    // Aux function to check
+    // Aux function to test Toast
     private fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity {
         lateinit var activity: Activity
         activityScenario.onActivity {
