@@ -9,9 +9,13 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import com.firebase.ui.auth.AuthUI
 import com.udacity.project4.R
 import com.udacity.project4.authentication.AuthenticationActivity
+import com.udacity.project4.authentication.AuthenticationState
+import com.udacity.project4.authentication.AuthenticationViewModel
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentRemindersBinding
@@ -23,6 +27,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class ReminderListFragment : BaseFragment() {
     //use Koin to retrieve the ViewModel instance
     override val _viewModel: RemindersListViewModel by viewModel()
+
+    private val authenticationViewModel by viewModels<AuthenticationViewModel>()
+
     private lateinit var binding: FragmentRemindersBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,6 +58,7 @@ class ReminderListFragment : BaseFragment() {
         binding.addReminderFAB.setOnClickListener {
             navigateToAddReminder()
         }
+        observeAuthenticationState()
     }
 
     override fun onResume() {
@@ -80,12 +88,28 @@ class ReminderListFragment : BaseFragment() {
         when (item.itemId) {
             R.id.logout -> {
                 AuthUI.getInstance().signOut(requireContext())
-                startActivity(Intent(context, AuthenticationActivity::class.java))
-                activity?.finish()
             }
         }
         return super.onOptionsItemSelected(item)
+    }
 
+    private fun observeAuthenticationState() {
+        authenticationViewModel.authenticationState.observe(
+            viewLifecycleOwner,
+            Observer { authentitcationState ->
+                when (authentitcationState) {
+                    AuthenticationState.AUTHENTICATED -> {
+                        // do nothing
+                    }
+                    AuthenticationState.UNAUTHENTICATED -> {
+                        startActivity(Intent(context, AuthenticationActivity::class.java))
+                        activity?.finish()
+                    }
+                    else -> {
+                        // do nothing
+                    }
+                }
+            })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
