@@ -86,7 +86,7 @@ class SelectLocationFragment : BaseFragment() {
 
     private lateinit var reminderDataItem: ReminderDataItem
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
 
     private val locationRequest: LocationRequest = LocationRequest.create().apply {
@@ -238,7 +238,7 @@ class SelectLocationFragment : BaseFragment() {
     // LOCATION THING
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         // LocationCallback to manage when the user turn on-off GPS and get the latest Location
         locationCallback = object : LocationCallback() {
@@ -266,7 +266,7 @@ class SelectLocationFragment : BaseFragment() {
     }
 
     private fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -347,6 +347,8 @@ class SelectLocationFragment : BaseFragment() {
         }
         locationSettingsResponseTask.addOnCompleteListener {
             if (it.isSuccessful) {
+                map.isMyLocationEnabled = true
+
                 // TODO - We cannot directly use isPermissionGranted to avoid warning:
                 //  "Call requires permission which may be rejected by user: code should explicitly
                 //  check to see if permission is available (with checkPermission) or explicitly
@@ -357,7 +359,7 @@ class SelectLocationFragment : BaseFragment() {
                 ) {
                     checkLocationPermissions()
                 } else {
-                    fusedLocationClient.lastLocation
+                    fusedLocationProviderClient.lastLocation
                         .addOnSuccessListener { location: Location? ->
                             location?.let {
                                 setUserLocationOnMap(location)
@@ -373,7 +375,7 @@ class SelectLocationFragment : BaseFragment() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            fusedLocationClient.requestLocationUpdates(
+            fusedLocationProviderClient.requestLocationUpdates(
                 locationRequest,
                 locationCallback,
                 Looper.getMainLooper()
@@ -382,7 +384,6 @@ class SelectLocationFragment : BaseFragment() {
     }
 
     private fun setUserLocationOnMap(lastLocation: Location) {
-        map.isMyLocationEnabled = true
         map.moveCamera(
             CameraUpdateFactory.newLatLngZoom(
                 LatLng(lastLocation.latitude, lastLocation.longitude),
