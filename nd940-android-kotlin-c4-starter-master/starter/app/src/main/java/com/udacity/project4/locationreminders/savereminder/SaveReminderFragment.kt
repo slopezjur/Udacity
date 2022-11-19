@@ -3,22 +3,23 @@ package com.udacity.project4.locationreminders.savereminder
 import android.Manifest
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.material.snackbar.Snackbar
-import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -70,15 +71,7 @@ class SaveReminderFragment : BaseFragment() {
 
         binding.saveReminder.setOnClickListener {
             if (checkLocationPermissions()) {
-                val reminderDataItem = getReminderDataItem()
-
-                _viewModel.validateAndSaveReminder(
-                    reminderDataItem
-                )
-
-                if (!reminderDataItem.title.isNullOrEmpty() && !reminderDataItem.location.isNullOrEmpty()) {
-                    addGeofence(reminderDataItem)
-                }
+                checkDeviceLocationOn()
             }
         }
 
@@ -106,8 +99,8 @@ class SaveReminderFragment : BaseFragment() {
     // LOCATION THING
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
-            addGeofence(getReminderDataItem())
+        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON && resultCode == -1) {
+            validateReminderAndAddGeofence()
         }
     }
 
@@ -121,19 +114,11 @@ class SaveReminderFragment : BaseFragment() {
             grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||
             grantResults[LOCATION_BACKGROUND_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED
         ) {
-            Snackbar.make(
-                binding.root,
-                getString(R.string.grant_location_background_permission),
-                Snackbar.LENGTH_LONG
-            ).setAction(getString(R.string.settings)) {
-                startActivity(Intent().apply {
-                    action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                    data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                })
-            }.show()
+            if (checkLocationPermissions()) {
+                checkDeviceLocationOn()
+            }
         } else {
-            addGeofence(getReminderDataItem())
+            checkDeviceLocationOn()
         }
     }
 
@@ -159,6 +144,61 @@ class SaveReminderFragment : BaseFragment() {
             Manifest.permission.ACCESS_BACKGROUND_LOCATION
         ))
     }
+
+    private fun checkDeviceLocationOn() {
+        val builder =
+            LocationSettingsRequest.Builder().addLocationRequest(LocationRequest.create().apply {
+                priority = LocationRequest.PRIORITY_LOW_POWER
+            })
+        val settingsClient = LocationServices.getSettingsClient(requireActivity())
+        val locationSettingsResponseTask =
+            settingsClient.checkLocationSettings(builder.build())
+        locationSettingsResponseTask.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+                    startIntentSenderForResult(
+                        exception.resolution.intentSender,
+                        REQUEST_TURN_DEVICE_LOCATION_ON,
+                        null,
+                        0,
+                        0,
+                        0,
+                        null
+                    )
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    Log.d(
+                        "LOCATION: ",
+                        "Error getting location settings resolution: " + sendEx.message
+                    )
+                }
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.grant_location_permission), Snackbar.LENGTH_LONG
+                ).setAction(android.R.string.ok) {
+                    checkLocationPermissions()
+                }.show()
+            }
+        }
+        locationSettingsResponseTask.addOnCompleteListener {
+            if (it.isSuccessful) {
+                validateReminderAndAddGeofence()
+            }
+        }
+    }
+
+    private fun validateReminderAndAddGeofence() {
+        val reminderDataItem = getReminderDataItem()
+        _viewModel.validateAndSaveReminder(
+            reminderDataItem
+        )
+        if (validateReminder(reminderDataItem)) {
+            addGeofence(reminderDataItem)
+        }
+    }
+
+    private fun validateReminder(reminderDataItem: ReminderDataItem) =
+        !reminderDataItem.title.isNullOrEmpty() && !reminderDataItem.location.isNullOrEmpty()
 
     private fun addGeofence(reminderDataItem: ReminderDataItem) {
         // Build the Geofence Object

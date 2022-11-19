@@ -238,7 +238,8 @@ class SelectLocationFragment : BaseFragment() {
     // LOCATION THING
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireActivity())
 
         // LocationCallback to manage when the user turn on-off GPS and get the latest Location
         locationCallback = object : LocationCallback() {
@@ -260,18 +261,13 @@ class SelectLocationFragment : BaseFragment() {
         checkLocationPermissions()
     }
 
-    override fun onPause() {
-        super.onPause()
-        stopLocationUpdates()
-    }
-
     private fun stopLocationUpdates() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
+        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON && resultCode == -1) {
             getLocation()
         }
     }
@@ -326,9 +322,14 @@ class SelectLocationFragment : BaseFragment() {
         locationSettingsResponseTask.addOnFailureListener { exception ->
             if (exception is ResolvableApiException) {
                 try {
-                    exception.startResolutionForResult(
-                        requireActivity(),
-                        REQUEST_TURN_DEVICE_LOCATION_ON
+                    startIntentSenderForResult(
+                        exception.resolution.intentSender,
+                        REQUEST_TURN_DEVICE_LOCATION_ON,
+                        null,
+                        0,
+                        0,
+                        0,
+                        null
                     )
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Log.d(
@@ -339,7 +340,7 @@ class SelectLocationFragment : BaseFragment() {
             } else {
                 Snackbar.make(
                     binding.root,
-                    getString(R.string.grant_location_permission), Snackbar.LENGTH_INDEFINITE
+                    getString(R.string.grant_location_permission), Snackbar.LENGTH_LONG
                 ).setAction(android.R.string.ok) {
                     getLocation()
                 }.show()
