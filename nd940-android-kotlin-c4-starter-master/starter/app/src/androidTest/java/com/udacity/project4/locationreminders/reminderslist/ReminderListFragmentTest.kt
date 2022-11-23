@@ -117,7 +117,7 @@ class ReminderListFragmentTest : KoinTest {
     @Test
     fun reminderListFragment_whenFragmentError_showSnackBar() =
         runBlockingTest {
-            val message = "Reminder not found"
+            val message = "Unable to retrieve the reminder"
 
             fakeDataSource.setReturnError(true)
 

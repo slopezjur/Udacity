@@ -78,6 +78,22 @@ class SaveReminderViewModelTest {
             }
         }
 
+    // Roboelectric works "fine" with SDK 29
+    @Config(sdk = [29])
+    @Test
+    fun getReminder_whenGetReminderError_shouldReturnException() =
+        mainCoroutineRule.runBlockingTest {
+            stopKoin()
+            reminderDataSource = FakeDataSource()
+            fillOutFakeRepositoryReminders()
+
+            val reminderDto = reminderDataSource.getReminder("0")
+
+            if (reminderDto is ResultState.Error) {
+                assertEquals("Unable to retrieve the reminder", reminderDto.exception.message)
+            }
+        }
+
     private suspend fun fillOutFakeRepositoryReminders() {
         createFakeRepositoryList().forEach {
             reminderDataSource.saveReminder(it)

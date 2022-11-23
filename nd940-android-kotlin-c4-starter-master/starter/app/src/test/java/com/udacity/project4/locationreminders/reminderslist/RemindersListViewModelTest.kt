@@ -76,7 +76,7 @@ class RemindersListViewModelTest {
         Assert.assertEquals(true, remindersListViewModel.showLoading.getOrAwaitValue())
         mainCoroutineRule.resumeDispatcher()
         Assert.assertEquals(false, remindersListViewModel.showLoading.getOrAwaitValue())
-        val exception = "Reminder not found"
+        val exception = "Unable to retrieve the reminder"
         Assert.assertEquals(exception, remindersListViewModel.showSnackBar.getOrAwaitValue())
         Assert.assertEquals(true, remindersListViewModel.showNoData.getOrAwaitValue())
     }
