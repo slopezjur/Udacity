@@ -199,7 +199,7 @@ class RemindersActivityTest : KoinTest {
         Espresso.onView(withId(R.id.selectLocation)).perform(ViewActions.click())
         delay(2000)
 
-        Espresso.onView(withId(R.id.map)).perform(ViewActions.click())
+        Espresso.onView(withId(R.id.map)).perform(ViewActions.longClick())
         delay(2000)
 
         Espresso.onView(withId(R.id.saveLastReminder)).perform(ViewActions.click())
