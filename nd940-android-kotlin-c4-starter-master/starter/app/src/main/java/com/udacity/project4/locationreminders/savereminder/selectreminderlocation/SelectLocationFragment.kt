@@ -82,6 +82,14 @@ class SelectLocationFragment : BaseFragment() {
             clearReminderDataItem()
             true
         }
+
+        if(checkLocationPermissions()) {
+            enableMyLocation()
+        }
+    }
+
+    private fun enableMyLocation() {
+        map.isMyLocationEnabled = true
     }
 
     private lateinit var reminderDataItem: ReminderDataItem
@@ -291,6 +299,7 @@ class SelectLocationFragment : BaseFragment() {
                 })
             }.show()
         } else {
+            enableMyLocation()
             getLocation()
         }
     }
@@ -348,8 +357,6 @@ class SelectLocationFragment : BaseFragment() {
         }
         locationSettingsResponseTask.addOnCompleteListener {
             if (it.isSuccessful) {
-                map.isMyLocationEnabled = true
-
                 // TODO - We cannot directly use isPermissionGranted to avoid warning:
                 //  "Call requires permission which may be rejected by user: code should explicitly
                 //  check to see if permission is available (with checkPermission) or explicitly
