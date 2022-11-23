@@ -38,10 +38,6 @@ class AuthenticationActivity : AppCompatActivity() {
 
         binding.buttonTv.setOnClickListener { launchSignInFlow() }
 
-        if (authenticationViewModel.authenticationState.value == AuthenticationState.AUTHENTICATED) {
-            navigateToRemindersActivity()
-        }
-
         observeAuthenticationState()
     }
 
